@@ -11,68 +11,34 @@ import java.util.Collection;
 public abstract class PieceMoveCalculator {
     public abstract Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition);
 
+    public Collection<ChessMove> lineMoves(ChessPiece piece, ChessBoard board, ChessPosition myPosition, int x, int y) {
+        ChessPosition curr = myPosition;
+        Collection<ChessMove> toAdd = new ArrayList<>();
+        // while in bounds
+        while ((curr.getRow() + x) >= 1 && (curr.getRow() + x) <= 8 && (curr.getColumn() + y) >= 1 && (curr.getColumn() + y) <= 8) {
+            curr = new ChessPosition(curr.getRow() + x, curr.getColumn() + y);
+            // if the space is empty
+            if (board.getPiece(curr) == null) {
+                toAdd.add(new ChessMove(myPosition, curr, null));
+            } else if (board.getPiece(curr).getTeamColor() != piece.getTeamColor()) {
+                toAdd.add(new ChessMove(myPosition, curr, null));
+                break;
+            } else {
+                break;
+            }
+        }
+        return toAdd;
+    }
+
     public Collection<ChessMove> diagonalMovement(ChessBoard board, ChessPosition myPosition) {
         ChessPiece piece = board.getPiece(myPosition);
         Collection<ChessMove> moves = new ArrayList<>();
-        ChessPosition curr = myPosition;
-        // up-left
-        while (curr.getRow() > 1 && curr.getColumn() > 1) {
-            ChessPosition new_pos = new ChessPosition(curr.getRow() - 1, curr.getColumn() - 1);
-            curr = new_pos;
-            // if the space is empty
-            if (board.getPiece(curr) == null) {
-                moves.add(new ChessMove(myPosition, curr, null));
-            } else if (board.getPiece(curr).getTeamColor() != piece.getTeamColor()) {
-                moves.add(new ChessMove(myPosition, curr, null));
-                break;
-            } else {
-                break;
-            }
-        }
-        // up-right
-        curr = myPosition;
-        while (curr.getRow() > 1 && curr.getColumn() < 8) {
-            ChessPosition new_pos = new ChessPosition(curr.getRow() - 1, curr.getColumn() + 1);
-            curr = new_pos;
-            // if the space is empty
-            if (board.getPiece(curr) == null) {
-                moves.add(new ChessMove(myPosition, curr, null));
-            } else if (board.getPiece(curr).getTeamColor() != piece.getTeamColor()) {
-                moves.add(new ChessMove(myPosition, curr, null));
-                break;
-            } else {
-                break;
-            }
-        }
-        // down-left
-        curr = myPosition;
-        while (curr.getRow() < 8 && curr.getColumn() > 1) {
-            ChessPosition new_pos = new ChessPosition(curr.getRow() + 1, curr.getColumn() - 1);
-            curr = new_pos;
-            // if the space is empty
-            if (board.getPiece(curr) == null) {
-                moves.add(new ChessMove(myPosition, curr, null));
-            } else if (board.getPiece(curr).getTeamColor() != piece.getTeamColor()) {
-                moves.add(new ChessMove(myPosition, curr, null));
-                break;
-            } else {
-                break;
-            }
-        }
-        // down-right
-        curr = myPosition;
-        while (curr.getRow() < 8 && curr.getColumn() < 8) {
-            ChessPosition new_pos = new ChessPosition(curr.getRow() + 1, curr.getColumn() + 1);
-            curr = new_pos;
-            // if the space is empty
-            if (board.getPiece(curr) == null) {
-                moves.add(new ChessMove(myPosition, curr, null));
-            } else if (board.getPiece(curr).getTeamColor() != piece.getTeamColor()) {
-                moves.add(new ChessMove(myPosition, curr, null));
-                break;
-            } else {
-                break;
-            }
+        int[][] possibleDiagonal = {
+                {1, 1}, {1, -1}, {-1, 1}, {-1, -1}
+        };
+        for (int[] i : possibleDiagonal) {
+            Collection<ChessMove> toAdd = lineMoves(piece, board, myPosition, i[0], i[1]);
+            moves.addAll(toAdd);
         }
         return moves;
     }
@@ -80,65 +46,12 @@ public abstract class PieceMoveCalculator {
     public Collection<ChessMove> linearMovement(ChessBoard board, ChessPosition myPosition) {
         ChessPiece piece = board.getPiece(myPosition);
         Collection<ChessMove> moves = new ArrayList<>();
-        ChessPosition curr = myPosition;
-        // up
-        while (curr.getRow() > 1) {
-            ChessPosition new_pos = new ChessPosition(curr.getRow() - 1, curr.getColumn());
-            curr = new_pos;
-            // if the space is empty
-            if (board.getPiece(curr) == null) {
-                moves.add(new ChessMove(myPosition, curr, null));
-            } else if (board.getPiece(curr).getTeamColor() != piece.getTeamColor()) {
-                moves.add(new ChessMove(myPosition, curr, null));
-                break;
-            } else {
-                break;
-            }
-        }
-        // down
-        curr = myPosition;
-        while (curr.getRow() < 8) {
-            ChessPosition new_pos = new ChessPosition(curr.getRow() + 1, curr.getColumn());
-            curr = new_pos;
-            // if the space is empty
-            if (board.getPiece(curr) == null) {
-                moves.add(new ChessMove(myPosition, curr, null));
-            } else if (board.getPiece(curr).getTeamColor() != piece.getTeamColor()) {
-                moves.add(new ChessMove(myPosition, curr, null));
-                break;
-            } else {
-                break;
-            }
-        }
-        // left
-        curr = myPosition;
-        while (curr.getColumn() > 1) {
-            ChessPosition new_pos = new ChessPosition(curr.getRow(), curr.getColumn() - 1);
-            curr = new_pos;
-            // if the space is empty
-            if (board.getPiece(curr) == null) {
-                moves.add(new ChessMove(myPosition, curr, null));
-            } else if (board.getPiece(curr).getTeamColor() != piece.getTeamColor()) {
-                moves.add(new ChessMove(myPosition, curr, null));
-                break;
-            } else {
-                break;
-            }
-        }
-        // right
-        curr = myPosition;
-        while (curr.getColumn() < 8) {
-            ChessPosition new_pos = new ChessPosition(curr.getRow(), curr.getColumn() + 1);
-            curr = new_pos;
-            // if the space is empty
-            if (board.getPiece(curr) == null) {
-                moves.add(new ChessMove(myPosition, curr, null));
-            } else if (board.getPiece(curr).getTeamColor() != piece.getTeamColor()) {
-                moves.add(new ChessMove(myPosition, curr, null));
-                break;
-            } else {
-                break;
-            }
+        int[][] possibleLinear = {
+                {0, 1}, {0, -1}, {1, 0}, {-1, 0}
+        };
+        for (int[] i : possibleLinear) {
+            Collection<ChessMove> toAdd = lineMoves(piece, board, myPosition, i[0], i[1]);
+            moves.addAll(toAdd);
         }
         return moves;
     }
