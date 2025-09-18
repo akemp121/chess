@@ -13,10 +13,26 @@ import chess.moves.*;
 public class ChessPiece {
     ChessGame.TeamColor pieceColor;
     ChessPiece.PieceType type;
+    PieceMoveCalculator calculator;
 
     public ChessPiece(ChessGame.TeamColor pieceColor, ChessPiece.PieceType type) {
         this.pieceColor = pieceColor;
         this.type = type;
+
+        switch (type) {
+            case PieceType.BISHOP:
+                calculator = new BishopMoveCalculator();
+            case PieceType.KING:
+                calculator = new KingMoveCalculator();
+            case PieceType.KNIGHT:
+                calculator = new KnightMoveCalculator();
+            case PieceType.PAWN:
+                calculator = new PawnMoveCalculator();
+            case PieceType.QUEEN:
+                calculator = new QueenMoveCalculator();
+            case PieceType.ROOK:
+                calculator = new RookMoveCalculator();
+        }
     }
 
     /**
@@ -53,20 +69,6 @@ public class ChessPiece {
      * @return Collection of valid moves
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
-        ChessPiece piece = board.getPiece(myPosition);
-        switch (piece.getPieceType()) {
-            case PieceType.BISHOP:
-                List.of();
-            case PieceType.KING:
-                List.of();
-            case PieceType.KNIGHT:
-                List.of();
-            case PieceType.PAWN:
-                List.of();
-            case PieceType.QUEEN:
-                List.of();
-            case PieceType.ROOK:
-                List.of();
-        }
+        return calculator.pieceMoves(board, myPosition);
     }
 }
