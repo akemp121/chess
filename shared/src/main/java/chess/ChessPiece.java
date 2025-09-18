@@ -21,17 +21,17 @@ public class ChessPiece {
 
         switch (type) {
             case PieceType.BISHOP:
-                calculator = new BishopMoveCalculator();
+                calculator = new BishopMoveCalculator(); break;
             case PieceType.KING:
-                calculator = new KingMoveCalculator();
+                calculator = new KingMoveCalculator(); break;
             case PieceType.KNIGHT:
-                calculator = new KnightMoveCalculator();
+                calculator = new KnightMoveCalculator(); break;
             case PieceType.PAWN:
-                calculator = new PawnMoveCalculator();
+                calculator = new PawnMoveCalculator(); break;
             case PieceType.QUEEN:
-                calculator = new QueenMoveCalculator();
+                calculator = new QueenMoveCalculator(); break;
             case PieceType.ROOK:
-                calculator = new RookMoveCalculator();
+                calculator = new RookMoveCalculator(); break;
         }
     }
 

@@ -10,6 +10,6 @@ import java.util.List;
 public class BishopMoveCalculator extends PieceMoveCalculator {
     @Override
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
-        return List.of();
+        return diagonalMovement(board, myPosition);
     }
 }

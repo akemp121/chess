@@ -10,6 +10,6 @@ import java.util.List;
 public class RookMoveCalculator extends PieceMoveCalculator {
     @Override
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
-        return List.of();
+        return linearMovement(board, myPosition);
     }
 }
