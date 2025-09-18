@@ -2,6 +2,7 @@ package chess;
 
 import java.util.Collection;
 import java.util.List;
+import chess.moves.*;
 
 /**
  * Represents a single chess piece
@@ -14,6 +15,8 @@ public class ChessPiece {
     ChessPiece.PieceType type;
 
     public ChessPiece(ChessGame.TeamColor pieceColor, ChessPiece.PieceType type) {
+        this.pieceColor = pieceColor;
+        this.type = type;
     }
 
     /**
@@ -50,6 +53,20 @@ public class ChessPiece {
      * @return Collection of valid moves
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
-        return List.of();
+        ChessPiece piece = board.getPiece(myPosition);
+        switch (piece.getPieceType()) {
+            case PieceType.BISHOP:
+                List.of();
+            case PieceType.KING:
+                List.of();
+            case PieceType.KNIGHT:
+                List.of();
+            case PieceType.PAWN:
+                List.of();
+            case PieceType.QUEEN:
+                List.of();
+            case PieceType.ROOK:
+                List.of();
+        }
     }
 }
