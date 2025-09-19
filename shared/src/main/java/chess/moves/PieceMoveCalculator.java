@@ -58,7 +58,8 @@ public abstract class PieceMoveCalculator {
 
     public ChessMove singularMove(ChessPiece piece, ChessBoard board, ChessPosition myPosition, int x, int y) {
         // if we're in bounds:
-        if ((myPosition.getRow() + x) >= 1 && (myPosition.getRow() + x) <= 8 && (myPosition.getColumn() + y) >= 1 && (myPosition.getColumn() + y) <= 8) {
+        if ((myPosition.getRow() + x) >= 1 && (myPosition.getRow() + x) <= 8
+                && (myPosition.getColumn() + y) >= 1 && (myPosition.getColumn() + y) <= 8) {
             ChessPosition curr = new ChessPosition(myPosition.getRow() + x, myPosition.getColumn() + y);
             // if it's null or occupied by enemy:
             if (board.getPiece(curr) == null || board.getPiece(curr).getTeamColor() != piece.getTeamColor()) {

@@ -11,9 +11,11 @@ public class PawnMoveCalculator extends PieceMoveCalculator {
     public Collection<ChessMove> promotionMoves(ChessPiece piece, ChessPosition startPos, ChessPosition endPos) {
         Collection<ChessMove> promotionMoves = new ArrayList<>();
         // if we're promoting:
-        if ((piece.getTeamColor() == ChessGame.TeamColor.WHITE && endPos.getRow() == 8) || (piece.getTeamColor() == ChessGame.TeamColor.BLACK && endPos.getRow() == 1)) {
+        if ((piece.getTeamColor() == ChessGame.TeamColor.WHITE && endPos.getRow() == 8)
+                || (piece.getTeamColor() == ChessGame.TeamColor.BLACK && endPos.getRow() == 1)) {
             // all promotions
-            ChessPiece.PieceType[] types = {ChessPiece.PieceType.QUEEN, ChessPiece.PieceType.ROOK, ChessPiece.PieceType.BISHOP, ChessPiece.PieceType.KNIGHT};
+            ChessPiece.PieceType[] types = {ChessPiece.PieceType.QUEEN,
+                    ChessPiece.PieceType.ROOK, ChessPiece.PieceType.BISHOP, ChessPiece.PieceType.KNIGHT};
             for (ChessPiece.PieceType t : types) {
                 promotionMoves.add(new ChessMove(startPos, endPos, t));
             }
