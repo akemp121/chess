@@ -1,5 +1,6 @@
 package chess;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 /**
@@ -49,6 +50,7 @@ public class ChessGame {
      * @return Set of valid moves for requested piece, or null if no piece at
      * startPosition
      */
+    // basically get pieceMoves and delete the ones that put the king in check
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
         throw new RuntimeException("Not implemented");
     }
@@ -59,6 +61,7 @@ public class ChessGame {
      * @param move chess move to perform
      * @throws InvalidMoveException if move is invalid
      */
+    // if the move isn't in valid moves, then throw the exception
     public void makeMove(ChessMove move) throws InvalidMoveException {
         throw new RuntimeException("Not implemented");
     }
@@ -69,8 +72,21 @@ public class ChessGame {
      * @param teamColor which team to check for check
      * @return True if the specified team is in check
      */
+    // go through all the pieceMoves of the other team, if "endPosition" is on our team's king, then return true
     public boolean isInCheck(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+        TeamColor opposite = TeamColor.BLACK;
+        if (teamColor == TeamColor.BLACK) {
+            opposite = TeamColor.WHITE;
+        }
+        // loop through enemy's moves:
+        ChessPosition kingPos = game_board.getKingPos(teamColor);
+        for (ChessMove m : game_board.getTeamMoves(opposite)) {
+            ChessPosition enemyPos = m.getEndPosition();
+            if (enemyPos == kingPos) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -79,6 +95,7 @@ public class ChessGame {
      * @param teamColor which team to check for checkmate
      * @return True if the specified team is in checkmate
      */
+    // king has no valid moves and IS IN CHECK
     public boolean isInCheckmate(TeamColor teamColor) {
         throw new RuntimeException("Not implemented");
     }
@@ -90,6 +107,7 @@ public class ChessGame {
      * @param teamColor which team to check for stalemate
      * @return True if the specified team is in stalemate, otherwise false
      */
+    // king has no valid moves and IS NOT IN CHECK
     public boolean isInStalemate(TeamColor teamColor) {
         throw new RuntimeException("Not implemented");
     }
