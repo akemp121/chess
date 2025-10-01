@@ -43,6 +43,24 @@ public class ChessGame {
         BLACK
     }
 
+    public void makeMoveGeneric(ChessMove move, ChessBoard board) {
+        // get current piece
+        ChessPiece curr = board.getPiece(move.getStartPosition());
+        ChessPiece.PieceType startType = curr.getPieceType();
+        TeamColor startColor = curr.getTeamColor();
+        // make startingPosition null
+        board.removePiece(move.getStartPosition());
+        // if promotionPiece
+        if (move.getPromotionPiece() != null) {
+            // put the promotion piece in the new position
+            board.addPiece(move.getEndPosition(), new ChessPiece(startColor, move.getPromotionPiece()));
+        }
+        // if not
+        else { // put the same piece in the new position
+            board.addPiece(move.getEndPosition(), new ChessPiece(startColor, startType));
+        }
+    }
+
     /**
      * Gets a valid moves for a piece at the given location
      *
@@ -52,7 +70,37 @@ public class ChessGame {
      */
     // basically get pieceMoves and delete the ones that put the king in check
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
-        throw new RuntimeException("Not implemented");
+        // get the piecemoves
+        ChessPiece curr = game_board.getPiece(startPosition);
+        Collection<ChessMove> moves = curr.pieceMoves(game_board, startPosition);
+        Collection<ChessMove> valid = new ArrayList<>();
+        // create a clone of the current board
+        for (ChessMove move : moves) {
+            ChessBoard copy = (ChessBoard) game_board.clone();
+            // make the move
+            makeMoveGeneric(move, copy);
+            if (!checkCheck(curr.getTeamColor(), copy)) {
+                // delete the move
+                valid.add(move);
+            }
+        }
+        return moves;
+    }
+
+    public boolean checkCheck(TeamColor teamColor, ChessBoard board) {
+        TeamColor opposite = TeamColor.BLACK;
+        if (teamColor == TeamColor.BLACK) {
+            opposite = TeamColor.WHITE;
+        }
+        // loop through enemy's moves:
+        ChessPosition kingPos = board.getKingPos(teamColor);
+        for (ChessMove m : board.getTeamMoves(opposite)) {
+            ChessPosition enemyPos = m.getEndPosition();
+            if (enemyPos.equals(kingPos)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -63,7 +111,8 @@ public class ChessGame {
      */
     // if the move isn't in valid moves, then throw the exception
     public void makeMove(ChessMove move) throws InvalidMoveException {
-        throw new RuntimeException("Not implemented");
+        // check if move is valid, if not, then throw the INVALID
+        makeMoveGeneric(move, game_board);
     }
 
     /**
@@ -74,19 +123,7 @@ public class ChessGame {
      */
     // go through all the pieceMoves of the other team, if "endPosition" is on our team's king, then return true
     public boolean isInCheck(TeamColor teamColor) {
-        TeamColor opposite = TeamColor.BLACK;
-        if (teamColor == TeamColor.BLACK) {
-            opposite = TeamColor.WHITE;
-        }
-        // loop through enemy's moves:
-        ChessPosition kingPos = game_board.getKingPos(teamColor);
-        for (ChessMove m : game_board.getTeamMoves(opposite)) {
-            ChessPosition enemyPos = m.getEndPosition();
-            if (enemyPos == kingPos) {
-                return true;
-            }
-        }
-        return false;
+        return checkCheck(teamColor, game_board);
     }
 
     /**
@@ -97,7 +134,11 @@ public class ChessGame {
      */
     // king has no valid moves and IS IN CHECK
     public boolean isInCheckmate(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+        Collection<ChessMove> kingMoves = validMoves(game_board.getKingPos(teamColor));
+        if (kingMoves.isEmpty() && isInCheck(teamColor)) {
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -109,7 +150,11 @@ public class ChessGame {
      */
     // king has no valid moves and IS NOT IN CHECK
     public boolean isInStalemate(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+        Collection<ChessMove> kingMoves = validMoves(game_board.getKingPos(teamColor));
+        if (kingMoves.isEmpty() && !isInCheck(teamColor)) {
+            return true;
+        }
+        return false;
     }
 
     /**

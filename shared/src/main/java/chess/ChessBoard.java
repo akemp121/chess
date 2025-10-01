@@ -11,11 +11,27 @@ import java.util.Objects;
  * Note: You can add to this class, but you may not alter
  * signature of the existing methods.
  */
-public class ChessBoard {
+public class ChessBoard implements Cloneable {
 
     ChessPiece[][] squares = new ChessPiece[8][8];
     public ChessBoard() {
         
+    }
+
+    @Override
+    protected Object clone() {
+        var clone = new ChessBoard();
+        for (int i = 1; i <= 8; i++) {
+            ChessPiece[] row = Arrays.copyOf(squares[i - 1], squares[i - 1].length);
+            for (int j = 1; j <= 8; j++) {
+                ChessPosition currPos = new ChessPosition(i, j);
+                ChessPiece currPiece = getPiece(currPos);
+                if (currPiece != null) {
+                    clone.addPiece(currPos, currPiece);
+                }
+            }
+        }
+        return clone;
     }
 
     @Override
@@ -40,6 +56,10 @@ public class ChessBoard {
      */
     public void addPiece(ChessPosition position, ChessPiece piece) {
         squares[position.getRow() - 1][position.getColumn() - 1] = piece;
+    }
+
+    public void removePiece(ChessPosition position) {
+        squares[position.getRow() - 1][position.getColumn() - 1] = null;
     }
 
     public Collection<ChessMove> getTeamMoves(ChessGame.TeamColor color) {
