@@ -1,6 +1,7 @@
 package chess;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 
 /**
@@ -84,7 +85,7 @@ public class ChessGame {
                 valid.add(move);
             }
         }
-        return moves;
+        return valid;
     }
 
     public boolean checkCheck(TeamColor teamColor, ChessBoard board) {
@@ -112,7 +113,14 @@ public class ChessGame {
     // if the move isn't in valid moves, then throw the exception
     public void makeMove(ChessMove move) throws InvalidMoveException {
         // check if move is valid, if not, then throw the INVALID
-        makeMoveGeneric(move, game_board);
+        ChessPosition startPosition = move.getStartPosition();
+        Collection<ChessMove> moves = validMoves(startPosition);
+        boolean isValid = Arrays.asList(moves).contains(move);
+        if (game_board.getPiece(startPosition).getTeamColor() == turn && isValid) {
+            makeMoveGeneric(move, game_board);
+        } else {
+            throw new InvalidMoveException();
+        }
     }
 
     /**
@@ -132,9 +140,10 @@ public class ChessGame {
      * @param teamColor which team to check for checkmate
      * @return True if the specified team is in checkmate
      */
-    // king has no valid moves and IS IN CHECK
+    // NOBODY has no valid moves and KING IS IN CHECK
     public boolean isInCheckmate(TeamColor teamColor) {
-        Collection<ChessMove> kingMoves = validMoves(game_board.getKingPos(teamColor));
+        ChessPosition kingPos = game_board.getKingPos(teamColor);
+        Collection<ChessMove> kingMoves = validMoves(kingPos);
         if (kingMoves.isEmpty() && isInCheck(teamColor)) {
             return true;
         }
@@ -148,10 +157,12 @@ public class ChessGame {
      * @param teamColor which team to check for stalemate
      * @return True if the specified team is in stalemate, otherwise false
      */
-    // king has no valid moves and IS NOT IN CHECK
+    // NOBODY has no valid moves and KING IS NOT IN CHECK
     public boolean isInStalemate(TeamColor teamColor) {
-        Collection<ChessMove> kingMoves = validMoves(game_board.getKingPos(teamColor));
-        if (kingMoves.isEmpty() && !isInCheck(teamColor)) {
+        ChessPosition kingPos = game_board.getKingPos(teamColor);
+        Collection<ChessMove> kingNormalMoves = game_board.getPiece(kingPos).pieceMoves(game_board, kingPos);
+        Collection<ChessMove> kingValidMoves = validMoves(kingPos);
+        if (kingValidMoves.isEmpty() && !isInCheck(teamColor) && !kingNormalMoves.isEmpty()) {
             return true;
         }
         return false;
