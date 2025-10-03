@@ -3,6 +3,7 @@ package chess;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Objects;
 
 /**
  * For a class that can manage a chess game, making moves on a board
@@ -20,6 +21,20 @@ public class ChessGame {
         setTeamTurn(TeamColor.WHITE);
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        ChessGame chessGame = (ChessGame) o;
+        return Objects.equals(game_board, chessGame.game_board) && turn == chessGame.turn;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(game_board, turn);
+    }
+
     /**
      * @return Which team's turn it is
      */
@@ -34,6 +49,14 @@ public class ChessGame {
      */
     public void setTeamTurn(TeamColor team) {
         turn = team;
+    }
+
+    public void changeTeamTurn() {
+        if (turn == TeamColor.WHITE) {
+            setTeamTurn(TeamColor.BLACK);
+        } else {
+            setTeamTurn(TeamColor.WHITE);
+        }
     }
 
     /**
@@ -130,10 +153,21 @@ public class ChessGame {
     public void makeMove(ChessMove move) throws InvalidMoveException {
         // check if move is valid, if not, then throw the INVALID
         ChessPosition startPosition = move.getStartPosition();
-        Collection<ChessMove> moves = validMoves(startPosition);
-        boolean isValid = Arrays.asList(moves).contains(move);
-        if (game_board.getPiece(startPosition).getTeamColor() == turn && isValid) {
-            makeMoveGeneric(move, game_board);
+        if (game_board.getPiece(startPosition) != null) {
+            Collection<ChessMove> moves = validMoves(startPosition);
+            boolean isValid = false;
+            for (ChessMove m : moves ) {
+                if (m.equals(move)){
+                    isValid = true;
+                    break;
+                }
+            }
+            if (game_board.getPiece(startPosition).getTeamColor() == turn && isValid) {
+                makeMoveGeneric(move, game_board);
+                changeTeamTurn();
+            } else {
+                throw new InvalidMoveException();
+            }
         } else {
             throw new InvalidMoveException();
         }
