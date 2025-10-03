@@ -88,6 +88,22 @@ public class ChessGame {
         return valid;
     }
 
+    public Collection<ChessMove> getValidMoves(TeamColor teamColor) {
+        Collection<ChessMove> moves = new ArrayList<>();
+        for (int i = 1; i <= 8; i++) {
+            for (int j = 1; j <= 8; j++) {
+                ChessPosition curr = new ChessPosition(i, j);
+                ChessPiece currPiece = game_board.getPiece(curr);
+                if (currPiece != null) {
+                    if (currPiece.getTeamColor() == teamColor) {
+                        moves.addAll(validMoves(curr));
+                    }
+                }
+            }
+        }
+        return moves;
+    }
+
     public boolean checkCheck(TeamColor teamColor, ChessBoard board) {
         TeamColor opposite = TeamColor.BLACK;
         if (teamColor == TeamColor.BLACK) {
@@ -142,9 +158,8 @@ public class ChessGame {
      */
     // NOBODY has no valid moves and KING IS IN CHECK
     public boolean isInCheckmate(TeamColor teamColor) {
-        ChessPosition kingPos = game_board.getKingPos(teamColor);
-        Collection<ChessMove> kingMoves = validMoves(kingPos);
-        if (kingMoves.isEmpty() && isInCheck(teamColor)) {
+        Collection<ChessMove> allMoves = getValidMoves(teamColor);
+        if (allMoves.isEmpty() && isInCheck(teamColor)) {
             return true;
         }
         return false;
@@ -159,10 +174,8 @@ public class ChessGame {
      */
     // NOBODY has no valid moves and KING IS NOT IN CHECK
     public boolean isInStalemate(TeamColor teamColor) {
-        ChessPosition kingPos = game_board.getKingPos(teamColor);
-        Collection<ChessMove> kingNormalMoves = game_board.getPiece(kingPos).pieceMoves(game_board, kingPos);
-        Collection<ChessMove> kingValidMoves = validMoves(kingPos);
-        if (kingValidMoves.isEmpty() && !isInCheck(teamColor) && !kingNormalMoves.isEmpty()) {
+        Collection<ChessMove> allMoves = getValidMoves(teamColor);
+        if (allMoves.isEmpty() && !isInCheck(teamColor)) {
             return true;
         }
         return false;
