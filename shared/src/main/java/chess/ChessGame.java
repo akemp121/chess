@@ -51,6 +51,7 @@ public class ChessGame {
         turn = team;
     }
 
+    // like a toggle switch for the teams
     public void changeTeamTurn() {
         if (turn == TeamColor.WHITE) {
             setTeamTurn(TeamColor.BLACK);
@@ -67,6 +68,7 @@ public class ChessGame {
         BLACK
     }
 
+    // for use by makeMove and validMoves
     public void makeMoveGeneric(ChessMove move, ChessBoard board) {
         // get current piece
         ChessPiece curr = board.getPiece(move.getStartPosition());
@@ -111,8 +113,10 @@ public class ChessGame {
         return valid;
     }
 
+    // gets all valid moves for a team
     public Collection<ChessMove> getValidMoves(TeamColor teamColor) {
         Collection<ChessMove> moves = new ArrayList<>();
+        // looping through the board
         for (int i = 1; i <= 8; i++) {
             for (int j = 1; j <= 8; j++) {
                 ChessPosition curr = new ChessPosition(i, j);
@@ -127,6 +131,7 @@ public class ChessGame {
         return moves;
     }
 
+    // for use by isCheckMate and validMoves
     public boolean checkCheck(TeamColor teamColor, ChessBoard board) {
         TeamColor opposite = TeamColor.BLACK;
         if (teamColor == TeamColor.BLACK) {
