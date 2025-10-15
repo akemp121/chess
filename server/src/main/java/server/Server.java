@@ -32,7 +32,6 @@ public class Server {
         // join game
         javalin.put("/game", ctx -> ctx.result("Join game not implemented"));
 
-
     }
 
     public int run(int desiredPort) {
