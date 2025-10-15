@@ -25,4 +25,9 @@ public class MemoryUserDAO implements UserDAO {
         return existingRecord;
     }
 
+    @Override
+    public void clear() {
+        users.clear();
+    }
+
 }

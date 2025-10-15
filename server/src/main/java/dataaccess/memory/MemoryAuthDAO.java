@@ -34,4 +34,9 @@ public class MemoryAuthDAO implements AuthDAO {
             throw new DataAccessException("Auth token doesn't exist!");
         }
     }
+
+    @Override
+    public void clear() {
+        authData.clear();
+    }
 }
