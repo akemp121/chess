@@ -1,8 +1,6 @@
 package server;
 
-import com.google.gson.Gson;
 import io.javalin.*;
-import io.javalin.http.*;
 import handlers.Handler;
 
 public class Server {
