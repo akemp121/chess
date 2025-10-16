@@ -1,6 +1,9 @@
 package server;
 
+import com.google.gson.Gson;
 import io.javalin.*;
+import io.javalin.http.*;
+import handlers.Handler;
 
 public class Server {
 
@@ -11,11 +14,13 @@ public class Server {
 
         // Register your endpoints and exception handlers here.
 
+        var handler = new Handler();
+
         // clear
         javalin.delete("/db", ctx -> ctx.result("Clear not implemented"));
 
         // register
-        javalin.post("/user", ctx -> ctx.result("Register not implemented"));
+        javalin.post("/user", handler::registerHandler);
 
         // login
         javalin.post("/session", ctx -> ctx.result("Login not implemented"));
