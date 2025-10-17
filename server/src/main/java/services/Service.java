@@ -8,9 +8,21 @@ import model.*;
 
 public class Service {
 
-    AuthDAO authDAO = new MemoryAuthDAO();
-    GameDAO gameDAO = new MemoryGameDAO();
-    UserDAO userDAO = new MemoryUserDAO();
+    private final AuthDAO authDAO = new MemoryAuthDAO();
+    private final GameDAO gameDAO = new MemoryGameDAO();
+    private final UserDAO userDAO = new MemoryUserDAO();
+
+    public AuthDAO getAuthDAO() {
+        return authDAO;
+    }
+
+    public GameDAO getGameDAO() {
+        return gameDAO;
+    }
+
+    public UserDAO getUserDAO() {
+        return userDAO;
+    }
 
     public RegisterResponse register(RegisterRequest request) throws AlreadyTakenException {
         UserData uData = new UserData(request.username(), request.password(), request.email());

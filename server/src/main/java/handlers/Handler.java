@@ -9,7 +9,7 @@ import services.Service;
 
 public class Handler {
 
-    Service service = new Service();
+    private final Service service = new Service();
 
     public void registerHandler(Context ctx) {
         Gson serializer = new Gson();
