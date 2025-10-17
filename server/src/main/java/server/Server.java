@@ -12,7 +12,7 @@ public class Server {
 
         // Register your endpoints and exception handlers here.
 
-        var handler = new Handler();
+        Handler handler = new Handler();
 
         // clear
         javalin.delete("/db", ctx -> ctx.result("Clear not implemented"));

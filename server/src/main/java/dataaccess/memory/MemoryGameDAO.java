@@ -6,11 +6,12 @@ import model.GameData;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 
 public class MemoryGameDAO implements GameDAO {
 
-    Map<Integer, GameData> games;
+    private final Map<Integer, GameData> games = new HashMap<>();
 
     @Override
     public GameData createGame(String gameName) {

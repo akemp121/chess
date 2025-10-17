@@ -4,12 +4,13 @@ import dataaccess.DataAccessException;
 import dataaccess.UserDAO;
 import model.UserData;
 
+import java.util.HashMap;
 import java.util.Map;
 
 
 public class MemoryUserDAO implements UserDAO {
 
-    Map<String, UserData> users;
+    private final Map<String, UserData> users = new HashMap<>();
 
     @Override
     public void createUser(UserData data) {
@@ -17,12 +18,8 @@ public class MemoryUserDAO implements UserDAO {
     }
 
     @Override
-    public UserData getUser(String userName) throws DataAccessException {
-        UserData existingRecord = users.get(userName);
-        if (existingRecord == null) {
-            throw new DataAccessException("User not found!");
-        }
-        return existingRecord;
+    public UserData getUser(String userName) {
+        return users.get(userName);
     }
 
     @Override
