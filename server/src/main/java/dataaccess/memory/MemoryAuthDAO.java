@@ -22,12 +22,8 @@ public class MemoryAuthDAO implements AuthDAO {
     }
 
     @Override
-    public AuthData getAuth(String authToken) throws DataAccessException {
-        AuthData existingRecord = authData.get(authToken);
-        if (existingRecord == null) {
-            throw new DataAccessException("Auth token not found!");
-        }
-        return existingRecord;
+    public AuthData getAuth(String authToken) {
+        return authData.get(authToken);
     }
 
     @Override
