@@ -55,4 +55,12 @@ public class Service {
         return new LogoutResponse();
     }
 
+    public CreateGameResponse createGame(CreateGameRequest request) throws UnauthorizedException {
+        AuthData aData = authDAO.getAuth(request.authToken());
+        if (aData == null) {
+            throw new UnauthorizedException("Unauthorized");
+        }
+        GameData gd = gameDAO.createGame(request.gameName());
+        return new CreateGameResponse(gd.gameID());
+    }
 }

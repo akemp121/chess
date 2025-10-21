@@ -3,6 +3,7 @@ package handlers;
 import dataaccess.*;
 import io.javalin.http.*;
 import com.google.gson.Gson;
+import org.eclipse.jetty.util.log.Log;
 import requests.*;
 import responses.*;
 import services.Service;
@@ -45,6 +46,21 @@ public class Handler {
         LogoutRequest request = new LogoutRequest(ctx.header("authorization"));
         try {
             LogoutResponse response = service.logout(request);
+            ctx.json(serializer.toJson(response));
+            ctx.status(200);
+        } catch (UnauthorizedException e) {
+            ctx.json(serializer.toJson(new ErrorResponse(e.getMessage())));
+            ctx.status(401);
+        }
+    }
+
+    public void createGameHandler(Context ctx) {
+        Gson serializer = new Gson();
+        CreateGameRequest tempReq = serializer.fromJson(ctx.body(), CreateGameRequest.class);
+        String authToken = ctx.header("authorization");
+        CreateGameRequest request = new CreateGameRequest(authToken, tempReq.gameName());
+        try {
+            CreateGameResponse response = service.createGame(request);
             ctx.json(serializer.toJson(response));
             ctx.status(200);
         } catch (UnauthorizedException e) {

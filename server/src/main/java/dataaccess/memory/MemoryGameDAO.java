@@ -1,5 +1,6 @@
 package dataaccess.memory;
 
+import chess.ChessGame;
 import dataaccess.DataAccessException;
 import dataaccess.GameDAO;
 import model.GameData;
@@ -12,19 +13,26 @@ import java.util.Map;
 public class MemoryGameDAO implements GameDAO {
 
     private final Map<Integer, GameData> games = new HashMap<>();
+    private Integer sequential = 1000;
 
     @Override
-    public GameData createGame(String gameName) {
-        return null;
+    public Integer createID() {
+        sequential += 1;
+        return sequential;
     }
 
     @Override
-    public GameData getGame(int gameID) throws DataAccessException {
-        GameData existingRecord = games.get(gameID);
-        if (existingRecord == null) {
-            throw new DataAccessException("Game not found!");
-        }
-        return existingRecord;
+    public GameData createGame(String gameName) {
+        Integer ID = createID();
+        ChessGame game = new ChessGame();
+        GameData gd = new GameData(ID, "", "", gameName, game);
+        games.put(ID, gd);
+        return gd;
+    }
+
+    @Override
+    public GameData getGame(int gameID) {
+        return games.get(gameID);
     }
 
     @Override

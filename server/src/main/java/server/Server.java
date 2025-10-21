@@ -30,7 +30,7 @@ public class Server {
         javalin.get("/game", ctx -> ctx.result("List games not implemented"));
 
         // create game
-        javalin.post("/game", ctx -> ctx.result("Create game not implemented"));
+        javalin.post("/game", handler::createGameHandler);
 
         // join game
         javalin.put("/game", ctx -> ctx.result("Join game not implemented"));
