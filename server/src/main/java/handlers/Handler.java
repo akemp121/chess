@@ -81,4 +81,25 @@ public class Handler {
             ctx.status(401);
         }
     }
+
+    public void joinGameHandler(Context ctx) {
+        Gson serializer = new Gson();
+        JoinGameRequest tempReq = serializer.fromJson(ctx.body(), JoinGameRequest.class);
+        String authToken = ctx.header("authorization");
+        JoinGameRequest request = new JoinGameRequest(authToken, tempReq.playerColor(), tempReq.gameID());
+        try {
+            JoinGameResponse response = service.joinGame(request);
+            ctx.json(serializer.toJson(response));
+            ctx.status(200);
+        } catch (UnauthorizedException e) {
+            ctx.json(serializer.toJson(new ErrorResponse(e.getMessage())));
+            ctx.status(401);
+        } catch (AlreadyTakenException e) {
+            ctx.json(serializer.toJson(new ErrorResponse(e.getMessage())));
+            ctx.status(403);
+        } catch (BadRequest e) {
+            ctx.json(serializer.toJson(new ErrorResponse(e.getMessage())));
+            ctx.status(400);
+        }
+    }
 }

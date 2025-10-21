@@ -33,7 +33,7 @@ public class Server {
         javalin.post("/game", handler::createGameHandler);
 
         // join game
-        javalin.put("/game", ctx -> ctx.result("Join game not implemented"));
+        javalin.put("/game", handler::joinGameHandler);
 
     }
 

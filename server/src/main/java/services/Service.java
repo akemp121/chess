@@ -74,4 +74,30 @@ public class Service {
         ArrayList<ListGameData> listOfGames = gameDAO.listGames();
         return new ListGamesResponse(listOfGames);
     }
+
+    public JoinGameResponse joinGame(JoinGameRequest request) throws UnauthorizedException, AlreadyTakenException,
+            BadRequest {
+        AuthData aData = authDAO.getAuth(request.authToken());
+        if (aData == null) {
+            throw new UnauthorizedException("Unauthorized");
+        }
+        GameData gData = gameDAO.getGame(request.gameID());
+        if (gData == null) {
+            throw new BadRequest("Game doesn't exist");
+        }
+        if ((request.playerColor().equals("WHITE") && !gData.whiteUsername().isBlank()) ||
+                (request.playerColor().equals("BLACK") && !gData.blackUsername().isBlank())) {
+            throw new AlreadyTakenException("Requested team color is already taken!");
+        }
+        String username = authDAO.getAuth(request.authToken()).username();
+        if (request.playerColor().equals("WHITE")) {
+            gData = new GameData(gData.gameID(), username, gData.blackUsername(),
+                    gData.gameName(), gData.game());
+        } else {
+            gData = new GameData(gData.gameID(), gData.whiteUsername(), username,
+                    gData.gameName(), gData.game());
+        }
+        gameDAO.updateGame(gData);
+        return new JoinGameResponse();
+    }
 }
