@@ -23,4 +23,20 @@ public class Handler {
             ctx.status(403);
         }
     }
+
+    public void loginHandler(Context ctx) {
+        Gson serializer = new Gson();
+        LoginRequest request = serializer.fromJson(ctx.body(), LoginRequest.class);
+        try {
+            LoginResponse response = service.login(request);
+            ctx.json(serializer.toJson(response));
+            ctx.status(200);
+        } catch (UnauthorizedException e) {
+            ctx.json(serializer.toJson(new ErrorResponse(e.getMessage())));
+            ctx.status(401);
+        } catch (BadRequest e) {
+            ctx.json(serializer.toJson(new ErrorResponse(e.getMessage())));
+            ctx.status(400);
+        }
+    }
 }

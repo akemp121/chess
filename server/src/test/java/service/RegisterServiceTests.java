@@ -13,11 +13,11 @@ import services.Service;
 
 public class RegisterServiceTests {
 
-    private final Service service = new Service();
-
     @Test
     @DisplayName("Add Successful")
     public void addSuccessful() {
+
+        Service service = new Service();
 
         RegisterRequest req = new RegisterRequest("q'em", "ha", "qemha@gmail.com");
         UserData ud = new UserData("q'em", "ha", "qemha@gmail.com");
@@ -25,6 +25,22 @@ public class RegisterServiceTests {
 
         Assertions.assertEquals(ud, service.getUserDAO().getUser(ud.username()),
                 "User not found in database. User not added");
+
+    }
+
+    @Test
+    @DisplayName("User already exists")
+    public void userExists() {
+
+        Service service = new Service();
+
+        RegisterRequest req = new RegisterRequest("q'em", "ha", "qemha@gmail.com");
+        service.register(req);
+
+        Assertions.assertThrows(AlreadyTakenException.class, () -> {
+            service.register(req);
+        }, "AlreadyTakenException not thrown!");
+
 
     }
 

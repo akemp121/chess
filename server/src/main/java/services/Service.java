@@ -35,4 +35,15 @@ public class Service {
         return new RegisterResponse(aData.username(), aData.authToken());
     }
 
+    public LoginResponse login(LoginRequest request) throws BadRequest, UnauthorizedException {
+        UserData uData = userDAO.getUser(request.username());
+        if (uData == null) {
+            throw new BadRequest("User not found!");
+        } else if (!uData.password().equals(request.password())) {
+            throw new UnauthorizedException("Password incorrect!");
+        }
+        AuthData aData = authDAO.createAuth(uData.username());
+        return new LoginResponse(aData.username(), aData.authToken());
+    }
+
 }

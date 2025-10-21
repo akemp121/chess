@@ -21,7 +21,7 @@ public class Server {
         javalin.post("/user", handler::registerHandler);
 
         // login
-        javalin.post("/session", ctx -> ctx.result("Login not implemented"));
+        javalin.post("/session", handler::loginHandler);
 
         // logout
         javalin.delete("/session", ctx -> ctx.result("Logout not implemented"));
