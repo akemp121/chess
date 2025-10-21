@@ -1,12 +1,11 @@
 package dataaccess.memory;
 
 import chess.ChessGame;
-import dataaccess.DataAccessException;
 import dataaccess.GameDAO;
 import model.GameData;
+import model.ListGameData;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -36,8 +35,12 @@ public class MemoryGameDAO implements GameDAO {
     }
 
     @Override
-    public Collection<GameData> listGames() {
-        return new ArrayList<>(games.values());
+    public ArrayList<ListGameData> listGames() {
+        ArrayList<ListGameData> gd_converted = new ArrayList<>();
+        for (GameData gd : games.values()) {
+            gd_converted.add(new ListGameData(gd.gameID(), gd.whiteUsername(), gd.blackUsername(), gd.gameName()));
+        }
+        return gd_converted;
     }
 
     @Override

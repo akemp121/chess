@@ -68,4 +68,17 @@ public class Handler {
             ctx.status(401);
         }
     }
+
+    public void listGamesHandler(Context ctx) {
+        Gson serializer = new Gson();
+        ListGamesRequest request = new ListGamesRequest(ctx.header("authorization"));
+        try {
+            ListGamesResponse response = service.listGames(request);
+            ctx.json(serializer.toJson(response));
+            ctx.status(200);
+        } catch (UnauthorizedException e) {
+            ctx.json(serializer.toJson(new ErrorResponse(e.getMessage())));
+            ctx.status(401);
+        }
+    }
 }

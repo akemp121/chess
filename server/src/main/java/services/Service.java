@@ -6,6 +6,8 @@ import responses.*;
 import dataaccess.*;
 import model.*;
 
+import java.util.ArrayList;
+
 public class Service {
 
     private final AuthDAO authDAO = new MemoryAuthDAO();
@@ -62,5 +64,14 @@ public class Service {
         }
         GameData gd = gameDAO.createGame(request.gameName());
         return new CreateGameResponse(gd.gameID());
+    }
+
+    public ListGamesResponse listGames(ListGamesRequest request) throws UnauthorizedException {
+        AuthData aData = authDAO.getAuth(request.authToken());
+        if (aData == null) {
+            throw new UnauthorizedException("Unauthorized");
+        }
+        ArrayList<ListGameData> listOfGames = gameDAO.listGames();
+        return new ListGamesResponse(listOfGames);
     }
 }

@@ -14,11 +14,13 @@ import services.Service;
 
 public class CreateGameServiceTests {
 
-    Service service = new Service();
+
 
     @Test
     @DisplayName("Game Created")
     public void gameCreated() {
+
+        Service service = new Service();
 
         // Register
 
@@ -41,6 +43,8 @@ public class CreateGameServiceTests {
     @Test
     @DisplayName("Unauthorized Creation")
     public void unauthorizedCreation() {
+
+        Service service = new Service();
 
         // Register
 
