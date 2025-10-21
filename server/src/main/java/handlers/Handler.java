@@ -39,4 +39,17 @@ public class Handler {
             ctx.status(400);
         }
     }
+
+    public void logoutHandler(Context ctx) {
+        Gson serializer = new Gson();
+        LogoutRequest request = new LogoutRequest(ctx.header("authorization"));
+        try {
+            LogoutResponse response = service.logout(request);
+            ctx.json(serializer.toJson(response));
+            ctx.status(200);
+        } catch (UnauthorizedException e) {
+            ctx.json(serializer.toJson(new ErrorResponse(e.getMessage())));
+            ctx.status(401);
+        }
+    }
 }

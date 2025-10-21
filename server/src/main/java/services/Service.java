@@ -46,4 +46,13 @@ public class Service {
         return new LoginResponse(aData.username(), aData.authToken());
     }
 
+    public LogoutResponse logout(LogoutRequest request) throws UnauthorizedException {
+        AuthData aData = authDAO.getAuth(request.authToken());
+        if (aData == null) {
+            throw new UnauthorizedException("AuthToken not found!");
+        }
+        authDAO.deleteAuth(request.authToken());
+        return new LogoutResponse();
+    }
+
 }

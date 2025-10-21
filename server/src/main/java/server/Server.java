@@ -24,7 +24,7 @@ public class Server {
         javalin.post("/session", handler::loginHandler);
 
         // logout
-        javalin.delete("/session", ctx -> ctx.result("Logout not implemented"));
+        javalin.delete("/session", handler::logoutHandler);
 
         // list games
         javalin.get("/game", ctx -> ctx.result("List games not implemented"));
