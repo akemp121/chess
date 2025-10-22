@@ -22,10 +22,10 @@ public class MemoryGameDAO implements GameDAO {
 
     @Override
     public GameData createGame(String gameName) {
-        Integer ID = createID();
+        Integer id = createID();
         ChessGame game = new ChessGame();
-        GameData gd = new GameData(ID, null, null, gameName, game);
-        games.put(ID, gd);
+        GameData gd = new GameData(id, null, null, gameName, game);
+        games.put(id, gd);
         return gd;
     }
 
@@ -36,11 +36,11 @@ public class MemoryGameDAO implements GameDAO {
 
     @Override
     public ArrayList<ListGameData> listGames() {
-        ArrayList<ListGameData> gd_converted = new ArrayList<>();
+        ArrayList<ListGameData> gdConverted = new ArrayList<>();
         for (GameData gd : games.values()) {
-            gd_converted.add(new ListGameData(gd.gameID(), gd.whiteUsername(), gd.blackUsername(), gd.gameName()));
+            gdConverted.add(new ListGameData(gd.gameID(), gd.whiteUsername(), gd.blackUsername(), gd.gameName()));
         }
-        return gd_converted;
+        return gdConverted;
     }
 
     @Override

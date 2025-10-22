@@ -13,11 +13,11 @@ import java.util.Objects;
  */
 public class ChessGame {
 
-    ChessBoard game_board = new ChessBoard();
+    ChessBoard gameBoard = new ChessBoard();
     TeamColor turn;
 
     public ChessGame() {
-        game_board.resetBoard();
+        gameBoard.resetBoard();
         setTeamTurn(TeamColor.WHITE);
     }
 
@@ -27,12 +27,12 @@ public class ChessGame {
             return false;
         }
         ChessGame chessGame = (ChessGame) o;
-        return Objects.equals(game_board, chessGame.game_board) && turn == chessGame.turn;
+        return Objects.equals(gameBoard, chessGame.gameBoard) && turn == chessGame.turn;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(game_board, turn);
+        return Objects.hash(gameBoard, turn);
     }
 
     /**
@@ -97,12 +97,12 @@ public class ChessGame {
     // basically get pieceMoves and delete the ones that put the king in check
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
         // get the piecemoves
-        ChessPiece curr = game_board.getPiece(startPosition);
-        Collection<ChessMove> moves = curr.pieceMoves(game_board, startPosition);
+        ChessPiece curr = gameBoard.getPiece(startPosition);
+        Collection<ChessMove> moves = curr.pieceMoves(gameBoard, startPosition);
         Collection<ChessMove> valid = new ArrayList<>();
         // create a clone of the current board
         for (ChessMove move : moves) {
-            ChessBoard copy = (ChessBoard) game_board.clone();
+            ChessBoard copy = (ChessBoard) gameBoard.clone();
             // make the move
             makeMoveGeneric(move, copy);
             if (!checkCheck(curr.getTeamColor(), copy)) {
@@ -120,7 +120,7 @@ public class ChessGame {
         for (int i = 1; i <= 8; i++) {
             for (int j = 1; j <= 8; j++) {
                 ChessPosition curr = new ChessPosition(i, j);
-                ChessPiece currPiece = game_board.getPiece(curr);
+                ChessPiece currPiece = gameBoard.getPiece(curr);
                 if (currPiece != null) {
                     if (currPiece.getTeamColor() == teamColor) {
                         moves.addAll(validMoves(curr));
@@ -158,7 +158,7 @@ public class ChessGame {
     public void makeMove(ChessMove move) throws InvalidMoveException {
         // check if move is valid, if not, then throw the INVALID
         ChessPosition startPosition = move.getStartPosition();
-        if (game_board.getPiece(startPosition) != null) {
+        if (gameBoard.getPiece(startPosition) != null) {
             Collection<ChessMove> moves = validMoves(startPosition);
             boolean isValid = false;
             for (ChessMove m : moves ) {
@@ -167,8 +167,8 @@ public class ChessGame {
                     break;
                 }
             }
-            if (game_board.getPiece(startPosition).getTeamColor() == turn && isValid) {
-                makeMoveGeneric(move, game_board);
+            if (gameBoard.getPiece(startPosition).getTeamColor() == turn && isValid) {
+                makeMoveGeneric(move, gameBoard);
                 changeTeamTurn();
             } else {
                 throw new InvalidMoveException();
@@ -186,7 +186,7 @@ public class ChessGame {
      */
     // go through all the pieceMoves of the other team, if "endPosition" is on our team's king, then return true
     public boolean isInCheck(TeamColor teamColor) {
-        return checkCheck(teamColor, game_board);
+        return checkCheck(teamColor, gameBoard);
     }
 
     /**
@@ -226,7 +226,7 @@ public class ChessGame {
      * @param board the new board to use
      */
     public void setBoard(ChessBoard board) {
-        game_board = board;
+        gameBoard = board;
     }
 
     /**
@@ -235,6 +235,6 @@ public class ChessGame {
      * @return the chessboard
      */
     public ChessBoard getBoard() {
-        return game_board;
+        return gameBoard;
     }
 }
