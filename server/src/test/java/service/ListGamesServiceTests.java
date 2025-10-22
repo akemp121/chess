@@ -32,14 +32,14 @@ public class ListGamesServiceTests {
 
         CreateGameRequest cGameReq1 = new CreateGameRequest(res.authToken(), "b'atzunk");
         CreateGameResponse cGameRes1 = service.createGame(cGameReq1);
-        ListGameData gd1 = new ListGameData(cGameRes1.gameID(), "", "", "b'atzunk");
+        ListGameData gd1 = new ListGameData(cGameRes1.gameID(), null, null, "b'atzunk");
         tempGameData.add(gd1);
 
         // Create game 2
 
         CreateGameRequest cGameReq2 = new CreateGameRequest(res.authToken(), "li pleet");
         CreateGameResponse cGameRes2 = service.createGame(cGameReq2);
-        ListGameData gd2 = new ListGameData(cGameRes2.gameID(), "", "", "li pleet");
+        ListGameData gd2 = new ListGameData(cGameRes2.gameID(), null, null, "li pleet");
         tempGameData.add(gd2);
 
         // List games

@@ -63,7 +63,7 @@ public class LoginServiceTests {
         // Logging in
 
         LoginRequest lReq = new LoginRequest("q'em", "ha");
-        Assertions.assertThrows(BadRequest.class, () -> {
+        Assertions.assertThrows(UnauthorizedException.class, () -> {
             service.login(lReq);
         }, "User didn't exist, but exception wasn't thrown!");
 
