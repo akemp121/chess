@@ -22,6 +22,9 @@ public class Handler {
         } catch (AlreadyTakenException e) {
             ctx.json(serializer.toJson(new ErrorResponse(e.getMessage())));
             ctx.status(403);
+        } catch (BadRequest e) {
+            ctx.json(serializer.toJson(new ErrorResponse(e.getMessage())));
+            ctx.status(400);
         }
     }
 
@@ -66,6 +69,9 @@ public class Handler {
         } catch (UnauthorizedException e) {
             ctx.json(serializer.toJson(new ErrorResponse(e.getMessage())));
             ctx.status(401);
+        } catch (BadRequest e) {
+            ctx.json(serializer.toJson(new ErrorResponse(e.getMessage())));
+            ctx.status(400);
         }
     }
 

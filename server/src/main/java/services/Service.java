@@ -26,11 +26,14 @@ public class Service {
         return userDAO;
     }
 
-    public RegisterResponse register(RegisterRequest request) throws AlreadyTakenException {
+    public RegisterResponse register(RegisterRequest request) throws AlreadyTakenException, BadRequest {
+        if (request.username() == null || request.password() == null || request.email() == null) {
+            throw new BadRequest("Error: Missing arguments!");
+        }
         UserData uData = new UserData(request.username(), request.password(), request.email());
         UserData existingData = userDAO.getUser(uData.username());
         if (existingData != null) {
-            throw new AlreadyTakenException("Username already taken!");
+            throw new AlreadyTakenException("Error: Username already taken!");
         }
         userDAO.createUser(uData);
         AuthData aData = authDAO.createAuth(uData.username());
@@ -38,11 +41,14 @@ public class Service {
     }
 
     public LoginResponse login(LoginRequest request) throws BadRequest, UnauthorizedException {
+        if (request.password() == null || request.username() == null) {
+            throw new BadRequest("Error: Username or password not given!");
+        }
         UserData uData = userDAO.getUser(request.username());
         if (uData == null) {
-            throw new BadRequest("User not found!");
+            throw new UnauthorizedException("Error: User not found!");
         } else if (!uData.password().equals(request.password())) {
-            throw new UnauthorizedException("Password incorrect!");
+            throw new UnauthorizedException("Error: Password incorrect!");
         }
         AuthData aData = authDAO.createAuth(uData.username());
         return new LoginResponse(aData.username(), aData.authToken());
@@ -51,16 +57,19 @@ public class Service {
     public LogoutResponse logout(LogoutRequest request) throws UnauthorizedException {
         AuthData aData = authDAO.getAuth(request.authToken());
         if (aData == null) {
-            throw new UnauthorizedException("AuthToken not found!");
+            throw new UnauthorizedException("Error: authToken not found!");
         }
         authDAO.deleteAuth(request.authToken());
         return new LogoutResponse();
     }
 
-    public CreateGameResponse createGame(CreateGameRequest request) throws UnauthorizedException {
+    public CreateGameResponse createGame(CreateGameRequest request) throws UnauthorizedException, BadRequest {
+        if (request.gameName() == null) {
+            throw new BadRequest("Error: gameName cannot be null!");
+        }
         AuthData aData = authDAO.getAuth(request.authToken());
         if (aData == null) {
-            throw new UnauthorizedException("Unauthorized");
+            throw new UnauthorizedException("Error: unauthorized");
         }
         GameData gd = gameDAO.createGame(request.gameName());
         return new CreateGameResponse(gd.gameID());
@@ -69,7 +78,7 @@ public class Service {
     public ListGamesResponse listGames(ListGamesRequest request) throws UnauthorizedException {
         AuthData aData = authDAO.getAuth(request.authToken());
         if (aData == null) {
-            throw new UnauthorizedException("Unauthorized");
+            throw new UnauthorizedException("Error: unauthorized");
         }
         ArrayList<ListGameData> listOfGames = gameDAO.listGames();
         return new ListGamesResponse(listOfGames);
@@ -77,17 +86,21 @@ public class Service {
 
     public JoinGameResponse joinGame(JoinGameRequest request) throws UnauthorizedException, AlreadyTakenException,
             BadRequest {
+        if (request.gameID() == null || request.playerColor() == null ||
+                (!request.playerColor().equals("WHITE") && !request.playerColor().equals("BLACK"))) {
+            throw new BadRequest("Error: Teamcolor and gameID cannot be null!");
+        }
         AuthData aData = authDAO.getAuth(request.authToken());
         if (aData == null) {
-            throw new UnauthorizedException("Unauthorized");
+            throw new UnauthorizedException("Error: unauthorized");
         }
         GameData gData = gameDAO.getGame(request.gameID());
         if (gData == null) {
-            throw new BadRequest("Game doesn't exist");
+            throw new BadRequest("Error: Game doesn't exist");
         }
-        if ((request.playerColor().equals("WHITE") && !gData.whiteUsername().isBlank()) ||
-                (request.playerColor().equals("BLACK") && !gData.blackUsername().isBlank())) {
-            throw new AlreadyTakenException("Requested team color is already taken!");
+        if ((request.playerColor().equals("WHITE") && gData.whiteUsername() != null) ||
+                (request.playerColor().equals("BLACK") && gData.blackUsername() != null)) {
+            throw new AlreadyTakenException("Error: Requested team color is already taken!");
         }
         String username = authDAO.getAuth(request.authToken()).username();
         if (request.playerColor().equals("WHITE")) {
