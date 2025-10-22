@@ -100,4 +100,11 @@ public class Service {
         gameDAO.updateGame(gData);
         return new JoinGameResponse();
     }
+
+    public ClearResponse clear() {
+        gameDAO.clear();
+        authDAO.clear();
+        userDAO.clear();
+        return new ClearResponse();
+    }
 }

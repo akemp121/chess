@@ -15,7 +15,7 @@ public class Server {
         Handler handler = new Handler();
 
         // clear
-        javalin.delete("/db", ctx -> ctx.result("Clear not implemented"));
+        javalin.delete("/db", handler::clearHandler);
 
         // register
         javalin.post("/user", handler::registerHandler);

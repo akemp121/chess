@@ -102,4 +102,11 @@ public class Handler {
             ctx.status(400);
         }
     }
+
+    public void clearHandler(Context ctx) {
+        Gson serializer = new Gson();
+        ClearResponse response = service.clear();
+        ctx.json(serializer.toJson(response));
+        ctx.status(200);
+    }
 }
