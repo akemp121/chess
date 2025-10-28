@@ -3,7 +3,6 @@ package handlers;
 import dataaccess.*;
 import io.javalin.http.*;
 import com.google.gson.Gson;
-import org.eclipse.jetty.util.log.Log;
 import requests.*;
 import responses.*;
 import services.Service;
