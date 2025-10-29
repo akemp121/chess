@@ -1,6 +1,7 @@
 package services;
 
 import dataaccess.memory.*;
+import dataaccess.sql.*;
 import requests.*;
 import responses.*;
 import dataaccess.*;
@@ -10,9 +11,15 @@ import java.util.ArrayList;
 
 public class Service {
 
-    private final AuthDAO authDAO = new MemoryAuthDAO();
-    private final GameDAO gameDAO = new MemoryGameDAO();
-    private final UserDAO userDAO = new MemoryUserDAO();
+    private final AuthDAO authDAO;
+    private final GameDAO gameDAO;
+    private final UserDAO userDAO;
+
+    public Service() throws DataAccessException {
+        this.authDAO = new SQLAuthDAO();
+        this.gameDAO = new SQLGameDAO();
+        this.userDAO = new SQLUserDAO();
+    }
 
     public AuthDAO getAuthDAO() {
         return authDAO;
