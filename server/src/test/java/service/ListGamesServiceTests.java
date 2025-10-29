@@ -17,7 +17,7 @@ public class ListGamesServiceTests {
 
     @Test
     @DisplayName("List Games Successful")
-    public void listGamesSuccessful() {
+    public void listGamesSuccessful() throws DataAccessException {
 
         Service service = new Service();
 
@@ -54,7 +54,7 @@ public class ListGamesServiceTests {
 
     @Test
     @DisplayName("Unauthorized List Games")
-    public void unauthorizedListGames() {
+    public void unauthorizedListGames() throws DataAccessException {
 
         Service service = new Service();
 

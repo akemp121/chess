@@ -18,7 +18,7 @@ public class CreateGameServiceTests {
 
     @Test
     @DisplayName("Game Created")
-    public void gameCreated() {
+    public void gameCreated() throws DataAccessException {
 
         Service service = new Service();
 
@@ -42,7 +42,7 @@ public class CreateGameServiceTests {
 
     @Test
     @DisplayName("Unauthorized Creation")
-    public void unauthorizedCreation() {
+    public void unauthorizedCreation() throws DataAccessException {
 
         Service service = new Service();
 

@@ -15,7 +15,7 @@ public class LoginServiceTests {
 
     @Test
     @DisplayName("Login Successful")
-    public void loginSuccessful() {
+    public void loginSuccessful() throws DataAccessException {
 
         Service service = new Service();
 
@@ -36,7 +36,7 @@ public class LoginServiceTests {
 
     @Test
     @DisplayName("Incorrect Password")
-    public void incorrectPassword() {
+    public void incorrectPassword() throws DataAccessException {
 
         Service service = new Service();
 
@@ -56,7 +56,7 @@ public class LoginServiceTests {
 
     @Test
     @DisplayName("User doesn't exist")
-    public void userNoExist() {
+    public void userNoExist() throws DataAccessException {
 
         Service service = new Service();
 

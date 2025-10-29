@@ -17,7 +17,7 @@ public class ClearServiceTests {
 
     @Test
     @DisplayName("Clear Successful")
-    public void clearSuccessul() {
+    public void clearSuccessul() throws DataAccessException {
 
         Service service = new Service();
 

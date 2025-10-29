@@ -15,7 +15,7 @@ public class LogoutServiceTests {
 
     @Test
     @DisplayName("Logout Successful")
-    public void logoutSuccessful() {
+    public void logoutSuccessful() throws DataAccessException {
 
         Service service = new Service();
 
@@ -41,7 +41,7 @@ public class LogoutServiceTests {
 
     @Test
     @DisplayName("Logout Unauthorized")
-    public void logoutUnauthorized() {
+    public void logoutUnauthorized() throws DataAccessException {
 
         Service service = new Service();
 

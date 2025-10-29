@@ -15,7 +15,7 @@ public class RegisterServiceTests {
 
     @Test
     @DisplayName("Add Successful")
-    public void addSuccessful() {
+    public void addSuccessful() throws DataAccessException {
 
         Service service = new Service();
 
@@ -30,7 +30,7 @@ public class RegisterServiceTests {
 
     @Test
     @DisplayName("User already exists")
-    public void userExists() {
+    public void userExists() throws DataAccessException {
 
         Service service = new Service();
 

@@ -16,7 +16,7 @@ public class JoinGameServiceTests {
 
     @Test
     @DisplayName("Join Game Successful")
-    public void joinGameSuccessul() {
+    public void joinGameSuccessul() throws DataAccessException {
 
         Service service = new Service();
 
@@ -51,7 +51,7 @@ public class JoinGameServiceTests {
 
     @Test
     @DisplayName("Spot Taken")
-    public void spotTaken() {
+    public void spotTaken() throws DataAccessException {
 
         Service service = new Service();
 
@@ -83,7 +83,7 @@ public class JoinGameServiceTests {
 
     @Test
     @DisplayName("Nonexistent Game")
-    public void nonexistentGame() {
+    public void nonexistentGame() throws DataAccessException {
 
         Service service = new Service();
 
