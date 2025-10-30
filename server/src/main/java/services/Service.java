@@ -33,7 +33,7 @@ public class Service {
         return userDAO;
     }
 
-    public RegisterResponse register(RegisterRequest request) throws AlreadyTakenException, BadRequest {
+    public RegisterResponse register(RegisterRequest request) throws AlreadyTakenException, BadRequest, DataAccessException {
         if (request.username() == null || request.password() == null || request.email() == null) {
             throw new BadRequest("Error: Missing arguments!");
         }
@@ -47,7 +47,7 @@ public class Service {
         return new RegisterResponse(aData.username(), aData.authToken());
     }
 
-    public LoginResponse login(LoginRequest request) throws BadRequest, UnauthorizedException {
+    public LoginResponse login(LoginRequest request) throws BadRequest, UnauthorizedException, DataAccessException {
         if (request.password() == null || request.username() == null) {
             throw new BadRequest("Error: Username or password not given!");
         }

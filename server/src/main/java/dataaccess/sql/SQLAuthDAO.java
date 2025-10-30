@@ -3,9 +3,11 @@ package dataaccess.sql;
 import dataaccess.AuthDAO;
 import dataaccess.DataAccessException;
 import dataaccess.DatabaseManager;
-import model.AuthData;
+import model.*;
+import com.google.gson.Gson;
 import java.sql.*;
 
+import static java.sql.Types.NULL;
 import java.util.UUID;
 
 public class SQLAuthDAO implements AuthDAO {
@@ -26,9 +28,29 @@ public class SQLAuthDAO implements AuthDAO {
             """
     };
 
+    private void executeUpdate(String statement, Object... params) throws DataAccessException {
+        try (Connection conn = DatabaseManager.getConnection()) {
+            try (PreparedStatement ps = conn.prepareStatement(statement)) {
+                for (int i = 0; i < params.length; i++) {
+                    Object param = params[i];
+                    if (param instanceof String p) ps.setString(i + 1, p);
+                    else if (param == null) ps.setNull(i + 1, NULL);
+                }
+                ps.executeUpdate();
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException(String.format("unable to update database: %s, %s", statement, e.getMessage()));
+        }
+    }
+
     @Override
-    public AuthData createAuth(String userName) {
-        return null;
+    public AuthData createAuth(String userName) throws DataAccessException {
+        var statement = "INSERT INTO auth (authToken, userName, json) VALUES (?, ?, ?)";
+        String authToken = UUID.randomUUID().toString();
+        AuthData data = new AuthData(authToken, userName);
+        String json = new Gson().toJson(data);
+        executeUpdate(statement, authToken, userName, json);
+        return data;
     }
 
     @Override
