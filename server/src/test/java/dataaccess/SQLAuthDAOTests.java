@@ -81,11 +81,62 @@ public class SQLAuthDAOTests {
 
         AuthData retrievedAD = authDAO.getAuth(ad.authToken());
 
-        Assertions.assertNull(retrievedAD);
+        Assertions.assertNull(retrievedAD,
+                "AuthToken was returned when there wasn't one to begin with!");
 
     }
 
+    @Test
+    @DisplayName("Delete Auth Successful")
+    public void deleteAuthSuccessful() throws DataAccessException {
 
+        AuthDAO authDAO = new SQLAuthDAO();
+
+        AuthData ad = authDAO.createAuth("winq mas yib' iru");
+
+        authDAO.deleteAuth(ad.authToken());
+
+        Assertions.assertNull(authDAO.getAuth(ad.authToken()),
+                "AuthData not deleted!");
+
+    }
+
+    // I don't think this is useful:
+
+    /*
+    @Test
+    @DisplayName("Delete Auth Without Auth")
+    public void deleteAuthWithoutAuth() throws DataAccessException {
+
+        AuthDAO authDAO = new SQLAuthDAO();
+
+        Assertions.assertThrows(DataAccessException.class, () -> {
+            authDAO.deleteAuth(null);
+        }, "Tried to delete auth without authToken and no exception raised");
+
+    }
+    */
+
+    @Test
+    @DisplayName("Clear Successful")
+    public void clearSuccessful() throws DataAccessException {
+
+        AuthDAO authDAO = new SQLAuthDAO();
+
+        AuthData ad = authDAO.createAuth("chaab'il winq");
+
+        AuthData ad2 = authDAO.createAuth("maa'us aj winq");
+
+        authDAO.clear();
+
+        AuthData retrievedAD = authDAO.getAuth(ad.authToken());
+
+        AuthData retrievedAD2 = authDAO.getAuth(ad2.authToken());
+
+        Assertions.assertNull(retrievedAD, "First authToken not cleared!");
+        Assertions.assertNull(retrievedAD2, "Second authToken not cleared!");
+
+    }
 
 
 }
