@@ -121,7 +121,7 @@ public class Service {
         return new JoinGameResponse();
     }
 
-    public ClearResponse clear() {
+    public ClearResponse clear() throws DataAccessException {
         gameDAO.clear();
         authDAO.clear();
         userDAO.clear();
