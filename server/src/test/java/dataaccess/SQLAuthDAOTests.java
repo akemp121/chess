@@ -48,6 +48,43 @@ public class SQLAuthDAOTests {
 
     }
 
+    @Test
+    @DisplayName("Get Auth Successful")
+    public void getAuthSuccessful() throws DataAccessException {
+
+        AuthDAO authDAO = new SQLAuthDAO();
+
+        AuthData ad = authDAO.createAuth("chaab'il winq");
+
+        AuthData retrievedAD = authDAO.getAuth(ad.authToken());
+
+        String retrievedName = retrievedAD.username();
+
+        String retrievedAuthToken = retrievedAD.authToken();
+
+        Assertions.assertEquals(ad.authToken(), retrievedAuthToken,
+                "Created and retrieved authTokens don't match!");
+        Assertions.assertEquals(ad.username(), retrievedName,
+                "Created and retrieved usernames don't match!");
+
+    }
+
+    @Test
+    @DisplayName("Get Nonexistent Auth")
+    public void getNonexistentAuth() throws DataAccessException {
+
+        AuthDAO authDAO = new SQLAuthDAO();
+
+        AuthData ad = authDAO.createAuth("maa'us aj winq");
+
+        authDAO.clear();
+
+        AuthData retrievedAD = authDAO.getAuth(ad.authToken());
+
+        Assertions.assertNull(retrievedAD);
+
+    }
+
 
 
 
