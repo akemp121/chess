@@ -61,7 +61,7 @@ public class Service {
         return new LoginResponse(aData.username(), aData.authToken());
     }
 
-    public LogoutResponse logout(LogoutRequest request) throws UnauthorizedException {
+    public LogoutResponse logout(LogoutRequest request) throws UnauthorizedException, DataAccessException {
         AuthData aData = authDAO.getAuth(request.authToken());
         if (aData == null) {
             throw new UnauthorizedException("Error: authToken not found!");
@@ -70,7 +70,7 @@ public class Service {
         return new LogoutResponse();
     }
 
-    public CreateGameResponse createGame(CreateGameRequest request) throws UnauthorizedException, BadRequest {
+    public CreateGameResponse createGame(CreateGameRequest request) throws UnauthorizedException, BadRequest, DataAccessException {
         if (request.gameName() == null) {
             throw new BadRequest("Error: gameName cannot be null!");
         }
@@ -82,7 +82,7 @@ public class Service {
         return new CreateGameResponse(gd.gameID());
     }
 
-    public ListGamesResponse listGames(ListGamesRequest request) throws UnauthorizedException {
+    public ListGamesResponse listGames(ListGamesRequest request) throws UnauthorizedException, DataAccessException {
         AuthData aData = authDAO.getAuth(request.authToken());
         if (aData == null) {
             throw new UnauthorizedException("Error: unauthorized");
@@ -92,7 +92,7 @@ public class Service {
     }
 
     public JoinGameResponse joinGame(JoinGameRequest request) throws UnauthorizedException, AlreadyTakenException,
-            BadRequest {
+            BadRequest, DataAccessException {
         if (request.gameID() == null || request.playerColor() == null ||
                 (!request.playerColor().equals("WHITE") && !request.playerColor().equals("BLACK"))) {
             throw new BadRequest("Error: Teamcolor and gameID cannot be null!");
