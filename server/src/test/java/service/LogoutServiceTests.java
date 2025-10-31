@@ -15,54 +15,66 @@ public class LogoutServiceTests {
 
     @Test
     @DisplayName("Logout Successful")
-    public void logoutSuccessful() throws DataAccessException {
+    public void logoutSuccessful() {
 
-        Service service = new Service();
+        try {
 
-        // Register
+            Service service = new Service();
 
-        RegisterRequest req = new RegisterRequest("q'em", "ha", "qemha@gmail.com");
-        service.register(req);
+            // Register
 
-        // Login
+            RegisterRequest req = new RegisterRequest("q'em", "ha", "qemha@gmail.com");
+            service.register(req);
 
-        LoginRequest lReq = new LoginRequest("q'em", "ha");
-        LoginResponse lRes = service.login(lReq);
+            // Login
 
-        // Logout
+            LoginRequest lReq = new LoginRequest("q'em", "ha");
+            LoginResponse lRes = service.login(lReq);
 
-        LogoutRequest loReq = new LogoutRequest(lRes.authToken());
-        service.logout(loReq);
-        AuthData aData = service.getAuthDAO().getAuth(lRes.authToken());
+            // Logout
 
-        Assertions.assertNull(aData, "authToken not deleted!");
+            LogoutRequest loReq = new LogoutRequest(lRes.authToken());
+            service.logout(loReq);
+            AuthData aData = service.getAuthDAO().getAuth(lRes.authToken());
+
+            Assertions.assertNull(aData, "authToken not deleted!");
+
+        } catch (DataAccessException e) {
+            Assertions.fail("Unexpected DataAccessException: " + e.getMessage());
+        }
 
     }
 
     @Test
     @DisplayName("Logout Unauthorized")
-    public void logoutUnauthorized() throws DataAccessException {
+    public void logoutUnauthorized() {
 
-        Service service = new Service();
+        try {
 
-        // Register
+            Service service = new Service();
 
-        RegisterRequest req = new RegisterRequest("q'em", "ha", "qemha@gmail.com");
-        service.register(req);
+            // Register
 
-        // Login
+            RegisterRequest req = new RegisterRequest("q'em", "ha", "qemha@gmail.com");
+            service.register(req);
 
-        LoginRequest lReq = new LoginRequest("q'em", "ha");
-        LoginResponse lRes = service.login(lReq);
+            // Login
 
-        // Logout
+            LoginRequest lReq = new LoginRequest("q'em", "ha");
+            LoginResponse lRes = service.login(lReq);
 
-        LogoutRequest loReq = new LogoutRequest(lRes.authToken());
-        service.logout(loReq);
+            // Logout
 
-        Assertions.assertThrows(UnauthorizedException.class, () -> {
+            LogoutRequest loReq = new LogoutRequest(lRes.authToken());
             service.logout(loReq);
-        }, "Tried to delete a non-existent authToken, exception not thrown!");
+
+            Assertions.assertThrows(UnauthorizedException.class, () -> {
+                service.logout(loReq);
+            }, "Tried to delete a non-existent authToken, exception not thrown!");
+
+        } catch (DataAccessException e) {
+            Assertions.fail("Unexpected DataAccessException: " + e.getMessage());
+        }
 
     }
 }

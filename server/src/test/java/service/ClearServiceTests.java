@@ -17,34 +17,40 @@ public class ClearServiceTests {
 
     @Test
     @DisplayName("Clear Successful")
-    public void clearSuccessul() throws DataAccessException {
+    public void clearSuccessul() {
 
-        Service service = new Service();
+        try {
 
-        // Register
+            Service service = new Service();
 
-        RegisterRequest req = new RegisterRequest("q'em", "ha", "qemha@gmail.com");
-        RegisterResponse res = service.register(req);
+            // Register
 
-        // Create game 1
+            RegisterRequest req = new RegisterRequest("q'em", "ha", "qemha@gmail.com");
+            RegisterResponse res = service.register(req);
 
-        CreateGameRequest cGameReq1 = new CreateGameRequest(res.authToken(), "b'atzunk");
-        service.createGame(cGameReq1);
+            // Create game 1
 
-        // Create game 2
+            CreateGameRequest cGameReq1 = new CreateGameRequest(res.authToken(), "b'atzunk");
+            service.createGame(cGameReq1);
 
-        CreateGameRequest cGameReq2 = new CreateGameRequest(res.authToken(), "li pleet");
-        service.createGame(cGameReq2);
+            // Create game 2
 
-        // Clear everything
+            CreateGameRequest cGameReq2 = new CreateGameRequest(res.authToken(), "li pleet");
+            service.createGame(cGameReq2);
 
-        ArrayList<ListGameData> empty = new ArrayList<>();
+            // Clear everything
 
-        service.clear();
+            ArrayList<ListGameData> empty = new ArrayList<>();
 
-        Assertions.assertEquals(empty, service.getGameDAO().listGames());
-        Assertions.assertNull(service.getAuthDAO().getAuth(res.authToken()));
-        Assertions.assertNull(service.getUserDAO().getUser("q'em"));
+            service.clear();
+
+            Assertions.assertEquals(empty, service.getGameDAO().listGames());
+            Assertions.assertNull(service.getAuthDAO().getAuth(res.authToken()));
+            Assertions.assertNull(service.getUserDAO().getUser("q'em"));
+
+        } catch (DataAccessException e) {
+            Assertions.fail("Unexpected DataAccessException: " + e.getMessage());
+        }
 
     }
 

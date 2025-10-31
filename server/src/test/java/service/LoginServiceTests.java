@@ -15,57 +15,75 @@ public class LoginServiceTests {
 
     @Test
     @DisplayName("Login Successful")
-    public void loginSuccessful() throws DataAccessException {
+    public void loginSuccessful() {
 
-        Service service = new Service();
+        try {
 
-        // Test register
+            Service service = new Service();
 
-        RegisterRequest req = new RegisterRequest("q'em", "ha", "qemha@gmail.com");
-        service.register(req);
+            // Test register
 
-        // Logging in
+            RegisterRequest req = new RegisterRequest("q'em", "ha", "qemha@gmail.com");
+            service.register(req);
 
-        LoginRequest lReq = new LoginRequest("q'em", "ha");
-        LoginResponse response = service.login(lReq);
-        AuthData aData = service.getAuthDAO().getAuth(response.authToken());
-        Assertions.assertEquals(response.authToken(), aData.authToken(),
-                "authToken not created!");
+            // Logging in
+
+            LoginRequest lReq = new LoginRequest("q'em", "ha");
+            LoginResponse response = service.login(lReq);
+            AuthData aData = service.getAuthDAO().getAuth(response.authToken());
+            Assertions.assertEquals(response.authToken(), aData.authToken(),
+                    "authToken not created!");
+
+        } catch (DataAccessException e) {
+            Assertions.fail("Unexpected DataAccessException: " + e.getMessage());
+        }
 
     }
 
     @Test
     @DisplayName("Incorrect Password")
-    public void incorrectPassword() throws DataAccessException {
+    public void incorrectPassword() {
 
-        Service service = new Service();
+        try {
 
-        // Test register
+            Service service = new Service();
 
-        RegisterRequest req = new RegisterRequest("q'em", "ha", "qemha@gmail.com");
-        service.register(req);
+            // Test register
 
-        // Logging in
+            RegisterRequest req = new RegisterRequest("q'em", "ha", "qemha@gmail.com");
+            service.register(req);
 
-        LoginRequest lReq = new LoginRequest("q'em", "q'eq");
-        Assertions.assertThrows(UnauthorizedException.class, () -> {
-            service.login(lReq);
-        }, "Incorrect password entered, exception not thrown!");
+            // Logging in
+
+            LoginRequest lReq = new LoginRequest("q'em", "q'eq");
+            Assertions.assertThrows(UnauthorizedException.class, () -> {
+                service.login(lReq);
+            }, "Incorrect password entered, exception not thrown!");
+
+        } catch (DataAccessException e) {
+            Assertions.fail("Unexpected DataAccessException: " + e.getMessage());
+        }
 
     }
 
     @Test
     @DisplayName("User doesn't exist")
-    public void userNoExist() throws DataAccessException {
+    public void userNoExist() {
 
-        Service service = new Service();
+        try {
 
-        // Logging in
+            Service service = new Service();
 
-        LoginRequest lReq = new LoginRequest("q'em", "ha");
-        Assertions.assertThrows(UnauthorizedException.class, () -> {
-            service.login(lReq);
-        }, "User didn't exist, but exception wasn't thrown!");
+            // Logging in
+
+            LoginRequest lReq = new LoginRequest("q'em", "ha");
+            Assertions.assertThrows(UnauthorizedException.class, () -> {
+                service.login(lReq);
+            }, "User didn't exist, but exception wasn't thrown!");
+
+        } catch (DataAccessException e) {
+            Assertions.fail("Unexpected DataAccessException: " + e.getMessage());
+        }
 
     }
 

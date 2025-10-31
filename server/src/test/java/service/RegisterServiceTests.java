@@ -15,32 +15,43 @@ public class RegisterServiceTests {
 
     @Test
     @DisplayName("Add Successful")
-    public void addSuccessful() throws DataAccessException {
+    public void addSuccessful() {
 
-        Service service = new Service();
+        try {
 
-        RegisterRequest req = new RegisterRequest("q'em", "ha", "qemha@gmail.com");
-        UserData ud = new UserData("q'em", "ha", "qemha@gmail.com");
-        service.register(req);
+            Service service = new Service();
 
-        Assertions.assertEquals(ud, service.getUserDAO().getUser(ud.username()),
-                "User not found in database. User not added");
+            RegisterRequest req = new RegisterRequest("q'em", "ha", "qemha@gmail.com");
+            UserData ud = new UserData("q'em", "ha", "qemha@gmail.com");
+            service.register(req);
+
+            Assertions.assertEquals(ud, service.getUserDAO().getUser(ud.username()),
+                    "User not found in database. User not added");
+
+        } catch (DataAccessException e) {
+            Assertions.fail("Unexpected DataAccessException: " + e.getMessage());
+        }
 
     }
 
     @Test
     @DisplayName("User already exists")
-    public void userExists() throws DataAccessException {
+    public void userExists() {
 
-        Service service = new Service();
+        try {
 
-        RegisterRequest req = new RegisterRequest("q'em", "ha", "qemha@gmail.com");
-        service.register(req);
+            Service service = new Service();
 
-        Assertions.assertThrows(AlreadyTakenException.class, () -> {
+            RegisterRequest req = new RegisterRequest("q'em", "ha", "qemha@gmail.com");
             service.register(req);
-        }, "AlreadyTakenException not thrown!");
 
+            Assertions.assertThrows(AlreadyTakenException.class, () -> {
+                service.register(req);
+            }, "AlreadyTakenException not thrown!");
+
+        } catch (DataAccessException e) {
+            Assertions.fail("Unexpected DataAccessException: " + e.getMessage());
+        }
 
     }
 

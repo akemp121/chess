@@ -18,48 +18,60 @@ public class CreateGameServiceTests {
 
     @Test
     @DisplayName("Game Created")
-    public void gameCreated() throws DataAccessException {
+    public void gameCreated() {
 
-        Service service = new Service();
+        try {
 
-        // Register
+            Service service = new Service();
 
-        RegisterRequest req = new RegisterRequest("q'em", "ha", "qemha@gmail.com");
-        RegisterResponse res = service.register(req);
+            // Register
 
-        // Create game
+            RegisterRequest req = new RegisterRequest("q'em", "ha", "qemha@gmail.com");
+            RegisterResponse res = service.register(req);
 
-        CreateGameRequest cGameReq = new CreateGameRequest(res.authToken(), "b'atzunk");
-        CreateGameResponse cGameRes = service.createGame(cGameReq);
+            // Create game
 
-        Assertions.assertEquals(1001, cGameRes.gameID(),
-                "gameID didn't generate as expected!");
-        ChessGame example = new ChessGame();
-        Assertions.assertEquals(example, service.getGameDAO().getGame(cGameRes.gameID()).game(),
-                "game wasn't created or was created incorrectly!");
+            CreateGameRequest cGameReq = new CreateGameRequest(res.authToken(), "b'atzunk");
+            CreateGameResponse cGameRes = service.createGame(cGameReq);
+
+            Assertions.assertEquals(1001, cGameRes.gameID(),
+                    "gameID didn't generate as expected!");
+            ChessGame example = new ChessGame();
+            Assertions.assertEquals(example, service.getGameDAO().getGame(cGameRes.gameID()).game(),
+                    "game wasn't created or was created incorrectly!");
+
+        } catch (DataAccessException e) {
+            Assertions.fail("Unexpected DataAccessException: " + e.getMessage());
+        }
 
     }
 
     @Test
     @DisplayName("Unauthorized Creation")
-    public void unauthorizedCreation() throws DataAccessException {
+    public void unauthorizedCreation() {
 
-        Service service = new Service();
+        try {
 
-        // Register
+            Service service = new Service();
 
-        RegisterRequest req = new RegisterRequest("q'em", "ha", "qemha@gmail.com");
-        RegisterResponse res = service.register(req);
-        LogoutRequest lr = new LogoutRequest(res.authToken());
-        service.logout(lr);
+            // Register
 
-        // Create game
+            RegisterRequest req = new RegisterRequest("q'em", "ha", "qemha@gmail.com");
+            RegisterResponse res = service.register(req);
+            LogoutRequest lr = new LogoutRequest(res.authToken());
+            service.logout(lr);
 
-        CreateGameRequest cGameReq = new CreateGameRequest(res.authToken(), "b'atzunk");
+            // Create game
 
-        Assertions.assertThrows(UnauthorizedException.class, () -> {
-            service.createGame(cGameReq);
-        }, "Game created when user was unauthorized");
+            CreateGameRequest cGameReq = new CreateGameRequest(res.authToken(), "b'atzunk");
+
+            Assertions.assertThrows(UnauthorizedException.class, () -> {
+                service.createGame(cGameReq);
+            }, "Game created when user was unauthorized");
+
+        } catch (DataAccessException e) {
+            Assertions.fail("Unexpected DataAccessException: " + e.getMessage());
+        }
 
     }
 

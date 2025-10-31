@@ -17,61 +17,73 @@ public class ListGamesServiceTests {
 
     @Test
     @DisplayName("List Games Successful")
-    public void listGamesSuccessful() throws DataAccessException {
+    public void listGamesSuccessful() {
 
-        Service service = new Service();
+        try {
 
-        // Register
+            Service service = new Service();
 
-        RegisterRequest req = new RegisterRequest("q'em", "ha", "qemha@gmail.com");
-        RegisterResponse res = service.register(req);
+            // Register
 
-        ArrayList<ListGameData> tempGameData = new ArrayList<>();
+            RegisterRequest req = new RegisterRequest("q'em", "ha", "qemha@gmail.com");
+            RegisterResponse res = service.register(req);
 
-        // Create game 1
+            ArrayList<ListGameData> tempGameData = new ArrayList<>();
 
-        CreateGameRequest cGameReq1 = new CreateGameRequest(res.authToken(), "b'atzunk");
-        CreateGameResponse cGameRes1 = service.createGame(cGameReq1);
-        ListGameData gd1 = new ListGameData(cGameRes1.gameID(), null, null, "b'atzunk");
-        tempGameData.add(gd1);
+            // Create game 1
 
-        // Create game 2
+            CreateGameRequest cGameReq1 = new CreateGameRequest(res.authToken(), "b'atzunk");
+            CreateGameResponse cGameRes1 = service.createGame(cGameReq1);
+            ListGameData gd1 = new ListGameData(cGameRes1.gameID(), null, null, "b'atzunk");
+            tempGameData.add(gd1);
 
-        CreateGameRequest cGameReq2 = new CreateGameRequest(res.authToken(), "li pleet");
-        CreateGameResponse cGameRes2 = service.createGame(cGameReq2);
-        ListGameData gd2 = new ListGameData(cGameRes2.gameID(), null, null, "li pleet");
-        tempGameData.add(gd2);
+            // Create game 2
 
-        // List games
+            CreateGameRequest cGameReq2 = new CreateGameRequest(res.authToken(), "li pleet");
+            CreateGameResponse cGameRes2 = service.createGame(cGameReq2);
+            ListGameData gd2 = new ListGameData(cGameRes2.gameID(), null, null, "li pleet");
+            tempGameData.add(gd2);
 
-        ListGamesRequest req2 = new ListGamesRequest(res.authToken());
-        ListGamesResponse res2 = service.listGames(req2);
+            // List games
 
-        Assertions.assertEquals(tempGameData, res2.games(),
-                "Games weren't added properly!");
+            ListGamesRequest req2 = new ListGamesRequest(res.authToken());
+            ListGamesResponse res2 = service.listGames(req2);
+
+            Assertions.assertEquals(tempGameData, res2.games(),
+                    "Games weren't added properly!");
+
+        } catch (DataAccessException e) {
+            Assertions.fail("Unexpected DataAccessException: " + e.getMessage());
+        }
 
     }
 
     @Test
     @DisplayName("Unauthorized List Games")
-    public void unauthorizedListGames() throws DataAccessException {
+    public void unauthorizedListGames() {
 
-        Service service = new Service();
+        try {
 
-        // Register
+            Service service = new Service();
 
-        RegisterRequest req = new RegisterRequest("q'em", "ha", "qemha@gmail.com");
-        RegisterResponse res = service.register(req);
-        LogoutRequest lr = new LogoutRequest(res.authToken());
-        service.logout(lr);
+            // Register
 
-        // List games
+            RegisterRequest req = new RegisterRequest("q'em", "ha", "qemha@gmail.com");
+            RegisterResponse res = service.register(req);
+            LogoutRequest lr = new LogoutRequest(res.authToken());
+            service.logout(lr);
 
-        ListGamesRequest req2 = new ListGamesRequest(res.authToken());
+            // List games
 
-        Assertions.assertThrows(UnauthorizedException.class, () -> {
-            service.listGames(req2);
-        }, "Games were listed when user was unauthorized!");
+            ListGamesRequest req2 = new ListGamesRequest(res.authToken());
+
+            Assertions.assertThrows(UnauthorizedException.class, () -> {
+                service.listGames(req2);
+            }, "Games were listed when user was unauthorized!");
+
+        } catch (DataAccessException e) {
+            Assertions.fail("Unexpected DataAccessException: " + e.getMessage());
+        }
 
     }
 
