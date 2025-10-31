@@ -15,89 +15,119 @@ public class SQLAuthDAOTests {
 
     @Test
     @DisplayName("Create Auth Successful")
-    public void createAuthSuccessful() throws DataAccessException {
+    public void createAuthSuccessful() {
 
-        AuthDAO authDAO = new SQLAuthDAO();
+        try {
 
-        AuthData ad = authDAO.createAuth("q'em ha");
+            AuthDAO authDAO = new SQLAuthDAO();
 
-        Assertions.assertNotNull(ad, "Auth not created!");
+            AuthData ad = authDAO.createAuth("q'em ha");
 
-        AuthData retrievedAD = authDAO.getAuth(ad.authToken());
+            Assertions.assertNotNull(ad, "Auth not created!");
 
-        String retrievedName = retrievedAD.username();
+            AuthData retrievedAD = authDAO.getAuth(ad.authToken());
 
-        String retrievedAuthToken = retrievedAD.authToken();
+            String retrievedName = retrievedAD.username();
 
-        Assertions.assertEquals(ad.authToken(), retrievedAuthToken,
-                "Created and retrieved authTokens don't match!");
-        Assertions.assertEquals(ad.username(), retrievedName,
-                "Created and retrieved usernames don't match!");
+            String retrievedAuthToken = retrievedAD.authToken();
+
+            Assertions.assertEquals(ad.authToken(), retrievedAuthToken,
+                    "Created and retrieved authTokens don't match!");
+            Assertions.assertEquals(ad.username(), retrievedName,
+                    "Created and retrieved usernames don't match!");
+
+        } catch (DataAccessException e) {
+            Assertions.fail("Unexpected DataAccessException: " + e.getMessage());
+        }
 
     }
 
     @Test
     @DisplayName("Create Auth Empty Username")
-    public void createAuthEmptyUsername() throws DataAccessException {
+    public void createAuthEmptyUsername() {
 
-        AuthDAO authDAO = new SQLAuthDAO();
+        try {
 
-        Assertions.assertThrows(DataAccessException.class, () -> {
-            authDAO.createAuth(null);
-        }, "Auth created with empty username");
+            AuthDAO authDAO = new SQLAuthDAO();
+
+            Assertions.assertThrows(DataAccessException.class, () -> {
+                authDAO.createAuth(null);
+            }, "Auth created with empty username");
+
+        } catch (DataAccessException e) {
+            Assertions.fail("Unexpected DataAccessException: " + e.getMessage());
+        }
 
     }
 
     @Test
     @DisplayName("Get Auth Successful")
-    public void getAuthSuccessful() throws DataAccessException {
+    public void getAuthSuccessful() {
 
-        AuthDAO authDAO = new SQLAuthDAO();
+        try {
 
-        AuthData ad = authDAO.createAuth("chaab'il winq");
+            AuthDAO authDAO = new SQLAuthDAO();
 
-        AuthData retrievedAD = authDAO.getAuth(ad.authToken());
+            AuthData ad = authDAO.createAuth("chaab'il winq");
 
-        String retrievedName = retrievedAD.username();
+            AuthData retrievedAD = authDAO.getAuth(ad.authToken());
 
-        String retrievedAuthToken = retrievedAD.authToken();
+            String retrievedName = retrievedAD.username();
 
-        Assertions.assertEquals(ad.authToken(), retrievedAuthToken,
-                "Created and retrieved authTokens don't match!");
-        Assertions.assertEquals(ad.username(), retrievedName,
-                "Created and retrieved usernames don't match!");
+            String retrievedAuthToken = retrievedAD.authToken();
+
+            Assertions.assertEquals(ad.authToken(), retrievedAuthToken,
+                    "Created and retrieved authTokens don't match!");
+            Assertions.assertEquals(ad.username(), retrievedName,
+                    "Created and retrieved usernames don't match!");
+
+        } catch (DataAccessException e) {
+            Assertions.fail("Unexpected DataAccessException: " + e.getMessage());
+        }
 
     }
 
     @Test
     @DisplayName("Get Nonexistent Auth")
-    public void getNonexistentAuth() throws DataAccessException {
+    public void getNonexistentAuth() {
 
-        AuthDAO authDAO = new SQLAuthDAO();
+        try {
 
-        AuthData ad = authDAO.createAuth("maa'us aj winq");
+            AuthDAO authDAO = new SQLAuthDAO();
 
-        authDAO.clear();
+            AuthData ad = authDAO.createAuth("maa'us aj winq");
 
-        AuthData retrievedAD = authDAO.getAuth(ad.authToken());
+            authDAO.clear();
 
-        Assertions.assertNull(retrievedAD,
-                "AuthToken was returned when there wasn't one to begin with!");
+            AuthData retrievedAD = authDAO.getAuth(ad.authToken());
+
+            Assertions.assertNull(retrievedAD,
+                    "AuthToken was returned when there wasn't one to begin with!");
+
+        } catch (DataAccessException e) {
+            Assertions.fail("Unexpected DataAccessException: " + e.getMessage());
+        }
 
     }
 
     @Test
     @DisplayName("Delete Auth Successful")
-    public void deleteAuthSuccessful() throws DataAccessException {
+    public void deleteAuthSuccessful() {
 
-        AuthDAO authDAO = new SQLAuthDAO();
+        try {
 
-        AuthData ad = authDAO.createAuth("winq mas yib' iru");
+            AuthDAO authDAO = new SQLAuthDAO();
 
-        authDAO.deleteAuth(ad.authToken());
+            AuthData ad = authDAO.createAuth("winq mas yib' iru");
 
-        Assertions.assertNull(authDAO.getAuth(ad.authToken()),
-                "AuthData not deleted!");
+            authDAO.deleteAuth(ad.authToken());
+
+            Assertions.assertNull(authDAO.getAuth(ad.authToken()),
+                    "AuthData not deleted!");
+
+        } catch (DataAccessException e) {
+            Assertions.fail("Unexpected DataAccessException: " + e.getMessage());
+        }
 
     }
 
@@ -119,22 +149,28 @@ public class SQLAuthDAOTests {
 
     @Test
     @DisplayName("Clear Successful")
-    public void clearSuccessful() throws DataAccessException {
+    public void clearSuccessful() {
 
-        AuthDAO authDAO = new SQLAuthDAO();
+        try {
 
-        AuthData ad = authDAO.createAuth("chaab'il winq");
+            AuthDAO authDAO = new SQLAuthDAO();
 
-        AuthData ad2 = authDAO.createAuth("maa'us aj winq");
+            AuthData ad = authDAO.createAuth("chaab'il winq");
 
-        authDAO.clear();
+            AuthData ad2 = authDAO.createAuth("maa'us aj winq");
 
-        AuthData retrievedAD = authDAO.getAuth(ad.authToken());
+            authDAO.clear();
 
-        AuthData retrievedAD2 = authDAO.getAuth(ad2.authToken());
+            AuthData retrievedAD = authDAO.getAuth(ad.authToken());
 
-        Assertions.assertNull(retrievedAD, "First authToken not cleared!");
-        Assertions.assertNull(retrievedAD2, "Second authToken not cleared!");
+            AuthData retrievedAD2 = authDAO.getAuth(ad2.authToken());
+
+            Assertions.assertNull(retrievedAD, "First authToken not cleared!");
+            Assertions.assertNull(retrievedAD2, "Second authToken not cleared!");
+
+        } catch (DataAccessException e) {
+            Assertions.fail("Unexpected DataAccessException: " + e.getMessage());
+        }
 
     }
 

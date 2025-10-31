@@ -9,11 +9,20 @@ import services.Service;
 
 public class Handler {
 
+    private final Service service;
+
+    public Handler() {
+        try {
+            this.service = new Service();
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public void registerHandler(Context ctx) {
         Gson serializer = new Gson();
         RegisterRequest request = serializer.fromJson(ctx.body(), RegisterRequest.class);
         try {
-            Service service = new Service();
             RegisterResponse response = service.register(request);
             ctx.json(serializer.toJson(response));
             ctx.status(200);
@@ -33,7 +42,6 @@ public class Handler {
         Gson serializer = new Gson();
         LoginRequest request = serializer.fromJson(ctx.body(), LoginRequest.class);
         try {
-            Service service = new Service();
             LoginResponse response = service.login(request);
             ctx.json(serializer.toJson(response));
             ctx.status(200);
@@ -53,7 +61,6 @@ public class Handler {
         Gson serializer = new Gson();
         LogoutRequest request = new LogoutRequest(ctx.header("authorization"));
         try {
-            Service service = new Service();
             LogoutResponse response = service.logout(request);
             ctx.json(serializer.toJson(response));
             ctx.status(200);
@@ -72,7 +79,6 @@ public class Handler {
         String authToken = ctx.header("authorization");
         CreateGameRequest request = new CreateGameRequest(authToken, tempReq.gameName());
         try {
-            Service service = new Service();
             CreateGameResponse response = service.createGame(request);
             ctx.json(serializer.toJson(response));
             ctx.status(200);
@@ -92,7 +98,6 @@ public class Handler {
         Gson serializer = new Gson();
         ListGamesRequest request = new ListGamesRequest(ctx.header("authorization"));
         try {
-            Service service = new Service();
             ListGamesResponse response = service.listGames(request);
             ctx.json(serializer.toJson(response));
             ctx.status(200);
@@ -111,7 +116,6 @@ public class Handler {
         String authToken = ctx.header("authorization");
         JoinGameRequest request = new JoinGameRequest(authToken, tempReq.playerColor(), tempReq.gameID());
         try {
-            Service service = new Service();
             JoinGameResponse response = service.joinGame(request);
             ctx.json(serializer.toJson(response));
             ctx.status(200);
@@ -133,7 +137,6 @@ public class Handler {
     public void clearHandler(Context ctx) {
         Gson serializer = new Gson();
         try {
-            Service service = new Service();
             ClearResponse response = service.clear();
             ctx.json(serializer.toJson(response));
             ctx.status(200);

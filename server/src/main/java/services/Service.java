@@ -17,8 +17,8 @@ public class Service {
 
     public Service() throws DataAccessException {
         this.authDAO = new SQLAuthDAO();
-        this.gameDAO = new SQLGameDAO();
-        this.userDAO = new SQLUserDAO();
+        this.gameDAO = new MemoryGameDAO();
+        this.userDAO = new MemoryUserDAO();
     }
 
     public AuthDAO getAuthDAO() {
