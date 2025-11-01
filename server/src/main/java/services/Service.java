@@ -2,6 +2,7 @@ package services;
 
 import dataaccess.memory.*;
 import dataaccess.sql.*;
+import org.mindrot.jbcrypt.BCrypt;
 import requests.*;
 import responses.*;
 import dataaccess.*;
@@ -18,7 +19,7 @@ public class Service {
     public Service() throws DataAccessException {
         this.authDAO = new SQLAuthDAO();
         this.gameDAO = new MemoryGameDAO();
-        this.userDAO = new MemoryUserDAO();
+        this.userDAO = new SQLUserDAO();
     }
 
     public AuthDAO getAuthDAO() {
@@ -54,7 +55,7 @@ public class Service {
         UserData uData = userDAO.getUser(request.username());
         if (uData == null) {
             throw new UnauthorizedException("Error: User not found!");
-        } else if (!uData.password().equals(request.password())) {
+        } else if (!BCrypt.checkpw(request.password(), uData.password())) {
             throw new UnauthorizedException("Error: Password incorrect!");
         }
         AuthData aData = authDAO.createAuth(uData.username());

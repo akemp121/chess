@@ -131,21 +131,29 @@ public class SQLAuthDAOTests {
 
     }
 
-    // I don't think this is useful:
 
-    /*
     @Test
     @DisplayName("Delete Auth Without Auth")
-    public void deleteAuthWithoutAuth() throws DataAccessException {
+    public void deleteAuthWithoutAuth() {
 
-        AuthDAO authDAO = new SQLAuthDAO();
+        try {
 
-        Assertions.assertThrows(DataAccessException.class, () -> {
-            authDAO.deleteAuth(null);
-        }, "Tried to delete auth without authToken and no exception raised");
+            AuthDAO authDAO = new SQLAuthDAO();
+
+            Assertions.assertDoesNotThrow(() -> {
+                        authDAO.deleteAuth(null);
+                    }, "Delete failed!"
+            );
+
+        } catch (DataAccessException e) {
+            Assertions.fail("Unexpected DataAccessException: " + e.getMessage());
+        }
+
+
+
 
     }
-    */
+
 
     @Test
     @DisplayName("Clear Successful")
