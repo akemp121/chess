@@ -14,8 +14,7 @@ public class MemoryGameDAO implements GameDAO {
     private final Map<Integer, GameData> games = new HashMap<>();
     private Integer sequential = 1000;
 
-    @Override
-    public Integer createID() {
+    private Integer createID() {
         sequential += 1;
         return sequential;
     }
