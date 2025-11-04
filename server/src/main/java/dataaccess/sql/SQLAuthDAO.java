@@ -13,7 +13,7 @@ import java.util.UUID;
 public class SQLAuthDAO implements AuthDAO {
 
     public SQLAuthDAO() throws DataAccessException {
-        configureDatabase();
+        DatabaseSetup.configureDatabase(createStatements);
     }
 
     private final String[] createStatements = {
@@ -33,8 +33,12 @@ public class SQLAuthDAO implements AuthDAO {
             try (PreparedStatement ps = conn.prepareStatement(statement)) {
                 for (int i = 0; i < params.length; i++) {
                     Object param = params[i];
-                    if (param instanceof String p) ps.setString(i + 1, p);
-                    else if (param == null) ps.setNull(i + 1, NULL);
+                    if (param instanceof String p) {
+                        ps.setString(i + 1, p);
+                    }
+                    else if (param == null) {
+                        ps.setNull(i + 1, NULL);
+                    }
                 }
                 ps.executeUpdate();
             }
@@ -86,19 +90,6 @@ public class SQLAuthDAO implements AuthDAO {
     public void clear() throws DataAccessException {
         var statement = "TRUNCATE auth";
         executeUpdate(statement);
-    }
-
-    private void configureDatabase() throws DataAccessException {
-        DatabaseManager.createDatabase();
-        try (Connection conn = DatabaseManager.getConnection()) {
-            for (String statement : createStatements) {
-                try (var preparedStatement = conn.prepareStatement(statement)) {
-                    preparedStatement.executeUpdate();
-                }
-            }
-        } catch (SQLException ex) {
-            throw new DataAccessException(String.format("Error: Unable to configure database: %s", ex.getMessage()));
-        }
     }
 
 }

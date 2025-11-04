@@ -17,7 +17,7 @@ import static java.sql.Types.NULL;
 public class SQLGameDAO implements GameDAO {
 
     public SQLGameDAO() throws DataAccessException {
-        configureDatabase();
+        DatabaseSetup.configureDatabase(createStatements);
     }
 
     private final String[] createStatements = {
@@ -40,9 +40,15 @@ public class SQLGameDAO implements GameDAO {
             try (PreparedStatement ps = conn.prepareStatement(statement, RETURN_GENERATED_KEYS)) {
                 for (int i = 0; i < params.length; i++) {
                     Object param = params[i];
-                    if (param instanceof String p) ps.setString(i + 1, p);
-                    else if (param instanceof Integer p) ps.setInt(i + 1, p);
-                    else if (param == null) ps.setNull(i + 1, NULL);
+                    if (param instanceof String p) {
+                        ps.setString(i + 1, p);
+                    }
+                    else if (param instanceof Integer p) {
+                        ps.setInt(i + 1, p);
+                    }
+                    else if (param == null) {
+                        ps.setNull(i + 1, NULL);
+                    }
                 }
                 ps.executeUpdate();
 
@@ -126,16 +132,4 @@ public class SQLGameDAO implements GameDAO {
         executeUpdate(statement);
     }
 
-    private void configureDatabase() throws DataAccessException {
-        DatabaseManager.createDatabase();
-        try (Connection conn = DatabaseManager.getConnection()) {
-            for (String statement : createStatements) {
-                try (var preparedStatement = conn.prepareStatement(statement)) {
-                    preparedStatement.executeUpdate();
-                }
-            }
-        } catch (SQLException ex) {
-            throw new DataAccessException(String.format("Error: Unable to configure database: %s", ex.getMessage()));
-        }
-    }
 }
