@@ -31,48 +31,20 @@ public class SQLGameDAO implements GameDAO {
               `json` TEXT DEFAULT NULL,
               PRIMARY KEY (`gameID`),
               INDEX(gameName)
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+            )
             """
     };
-
-    private int executeUpdate(String statement, Object... params) throws DataAccessException {
-        try (Connection conn = DatabaseManager.getConnection()) {
-            try (PreparedStatement ps = conn.prepareStatement(statement, RETURN_GENERATED_KEYS)) {
-                for (int i = 0; i < params.length; i++) {
-                    Object param = params[i];
-                    if (param instanceof String p) {
-                        ps.setString(i + 1, p);
-                    }
-                    else if (param instanceof Integer p) {
-                        ps.setInt(i + 1, p);
-                    }
-                    else if (param == null) {
-                        ps.setNull(i + 1, NULL);
-                    }
-                }
-                ps.executeUpdate();
-
-                ResultSet rs = ps.getGeneratedKeys();
-                if (rs.next()) {
-                    return rs.getInt(1);
-                }
-                return 0;
-            }
-        } catch (SQLException e) {
-            throw new DataAccessException(String.format("Error: unable to update database: %s, %s", statement, e.getMessage()));
-        }
-    }
 
     @Override
     public GameData createGame(String gameName) throws DataAccessException {
         var statement = "INSERT INTO game (gameName, game) VALUES (?, ?)";
         ChessGame toAdd = new ChessGame();
         String game = new Gson().toJson(toAdd);
-        int id = executeUpdate(statement, gameName, game);
+        int id = DatabaseSetup.executeUpdate(statement, gameName, game);
         GameData gd = new GameData(id, null, null, gameName, toAdd);
         String json = new Gson().toJson(gd);
         var statement2 = "UPDATE game SET json=? WHERE gameID=?";
-        executeUpdate(statement2, json, id);
+        DatabaseSetup.executeUpdate(statement2, json, id);
         return gd;
     }
 
@@ -123,13 +95,13 @@ public class SQLGameDAO implements GameDAO {
         var statement = "UPDATE game SET whiteUsername=?, blackUsername=?, game=?, json=? WHERE gameID=?";
         String gameJson = new Gson().toJson(data.game());
         String json = new Gson().toJson(data);
-        executeUpdate(statement, data.whiteUsername(),data.blackUsername(), gameJson, json, data.gameID());
+        DatabaseSetup.executeUpdate(statement, data.whiteUsername(),data.blackUsername(), gameJson, json, data.gameID());
     }
 
     @Override
     public void clear() throws DataAccessException {
         var statement = "TRUNCATE game";
-        executeUpdate(statement);
+        DatabaseSetup.executeUpdate(statement);
     }
 
 }

@@ -7,7 +7,6 @@ import model.*;
 import com.google.gson.Gson;
 import java.sql.*;
 
-import static java.sql.Types.NULL;
 import java.util.UUID;
 
 public class SQLAuthDAO implements AuthDAO {
@@ -24,28 +23,9 @@ public class SQLAuthDAO implements AuthDAO {
               `json` TEXT DEFAULT NULL,
               PRIMARY KEY (`authToken`),
               INDEX(userName)
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+            )
             """
     };
-
-    private void executeUpdate(String statement, Object... params) throws DataAccessException {
-        try (Connection conn = DatabaseManager.getConnection()) {
-            try (PreparedStatement ps = conn.prepareStatement(statement)) {
-                for (int i = 0; i < params.length; i++) {
-                    Object param = params[i];
-                    if (param instanceof String p) {
-                        ps.setString(i + 1, p);
-                    }
-                    else if (param == null) {
-                        ps.setNull(i + 1, NULL);
-                    }
-                }
-                ps.executeUpdate();
-            }
-        } catch (SQLException e) {
-            throw new DataAccessException(String.format("Error: unable to update database: %s, %s", statement, e.getMessage()));
-        }
-    }
 
     @Override
     public AuthData createAuth(String userName) throws DataAccessException {
@@ -53,7 +33,7 @@ public class SQLAuthDAO implements AuthDAO {
         String authToken = UUID.randomUUID().toString();
         AuthData data = new AuthData(authToken, userName);
         String json = new Gson().toJson(data);
-        executeUpdate(statement, authToken, userName, json);
+        DatabaseSetup.executeUpdate(statement, authToken, userName, json);
         return data;
     }
 
@@ -83,13 +63,13 @@ public class SQLAuthDAO implements AuthDAO {
     @Override
     public void deleteAuth(String authToken) throws DataAccessException {
         var statement = "DELETE FROM auth WHERE authToken=?";
-        executeUpdate(statement, authToken);
+        DatabaseSetup.executeUpdate(statement, authToken);
     }
 
     @Override
     public void clear() throws DataAccessException {
         var statement = "TRUNCATE auth";
-        executeUpdate(statement);
+        DatabaseSetup.executeUpdate(statement);
     }
 
 }

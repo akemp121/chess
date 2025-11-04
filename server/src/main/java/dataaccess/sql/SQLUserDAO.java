@@ -9,8 +9,6 @@ import org.mindrot.jbcrypt.BCrypt;
 
 import java.sql.*;
 
-import static java.sql.Types.NULL;
-
 public class SQLUserDAO implements UserDAO {
 
     public SQLUserDAO() throws DataAccessException {
@@ -27,28 +25,9 @@ public class SQLUserDAO implements UserDAO {
               PRIMARY KEY (`username`),
               INDEX(password),
               INDEX(email)
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+            )
             """
     };
-
-    private void executeUpdate(String statement, Object... params) throws DataAccessException {
-        try (Connection conn = DatabaseManager.getConnection()) {
-            try (PreparedStatement ps = conn.prepareStatement(statement)) {
-                for (int i = 0; i < params.length; i++) {
-                    Object param = params[i];
-                    if (param instanceof String p) {
-                        ps.setString(i + 1, p);
-                    }
-                    else if (param == null) {
-                        ps.setNull(i + 1, NULL);
-                    }
-                }
-                ps.executeUpdate();
-            }
-        } catch (SQLException e) {
-            throw new DataAccessException(String.format("Error: unable to update database: %s, %s", statement, e.getMessage()));
-        }
-    }
 
     @Override
     public void createUser(UserData data) throws DataAccessException {
@@ -56,7 +35,7 @@ public class SQLUserDAO implements UserDAO {
         String hashedPassword = BCrypt.hashpw(data.password(), BCrypt.gensalt());
         UserData toWrite = new UserData(data.username(), hashedPassword, data.email());
         String json = new Gson().toJson(toWrite);
-        executeUpdate(statement, toWrite.username(), hashedPassword, toWrite.email(), json);
+        DatabaseSetup.executeUpdate(statement, toWrite.username(), hashedPassword, toWrite.email(), json);
     }
 
     @Override
@@ -85,7 +64,7 @@ public class SQLUserDAO implements UserDAO {
     @Override
     public void clear() throws DataAccessException {
         var statement = "TRUNCATE user";
-        executeUpdate(statement);
+        DatabaseSetup.executeUpdate(statement);
     }
 
 }
