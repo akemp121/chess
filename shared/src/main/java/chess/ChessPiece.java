@@ -15,26 +15,10 @@ import chess.moves.*;
 public class ChessPiece {
     ChessGame.TeamColor pieceColor;
     ChessPiece.PieceType type;
-    PieceMoveCalculator calculator;
 
     public ChessPiece(ChessGame.TeamColor pieceColor, ChessPiece.PieceType type) {
         this.pieceColor = pieceColor;
         this.type = type;
-
-        switch (type) {
-            case PieceType.BISHOP:
-                calculator = new BishopMoveCalculator(); break;
-            case PieceType.KING:
-                calculator = new KingMoveCalculator(); break;
-            case PieceType.KNIGHT:
-                calculator = new KnightMoveCalculator(); break;
-            case PieceType.PAWN:
-                calculator = new PawnMoveCalculator(); break;
-            case PieceType.QUEEN:
-                calculator = new QueenMoveCalculator(); break;
-            case PieceType.ROOK:
-                calculator = new RookMoveCalculator(); break;
-        }
     }
 
     @Override
@@ -85,6 +69,7 @@ public class ChessPiece {
      * @return Collection of valid moves
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
+        PieceMoveCalculator calculator = CalculatorFactory.getCalculator(type);
         return calculator.pieceMoves(board, myPosition);
     }
 }

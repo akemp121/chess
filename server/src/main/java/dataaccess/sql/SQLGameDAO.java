@@ -53,7 +53,7 @@ public class SQLGameDAO implements GameDAO {
                 return 0;
             }
         } catch (SQLException e) {
-            throw new DataAccessException(String.format("unable to update database: %s, %s", statement, e.getMessage()));
+            throw new DataAccessException(String.format("Error: unable to update database: %s, %s", statement, e.getMessage()));
         }
     }
 
@@ -83,15 +83,14 @@ public class SQLGameDAO implements GameDAO {
                 }
             }
         } catch (SQLException e) {
-            throw new DataAccessException(String.format("Unable to read data: %s", e.getMessage()));
+            throw new DataAccessException(String.format("Error: Unable to read data: %s", e.getMessage()));
         }
         return null;
     }
 
     private GameData readGame(ResultSet rs) throws SQLException {
-        var json = rs.getString("game");
-        ChessGame theGame = new Gson().fromJson(json, ChessGame.class);
-        return null;
+        var json = rs.getString("json");
+        return new Gson().fromJson(json, GameData.class);
     }
 
     @Override
@@ -108,7 +107,7 @@ public class SQLGameDAO implements GameDAO {
                 }
             }
         } catch (SQLException e) {
-            throw new DataAccessException(String.format("Unable to read data: %s", e.getMessage()));
+            throw new DataAccessException(String.format("Error: Unable to read data: %s", e.getMessage()));
         }
         return gdConverted;
     }
@@ -118,7 +117,7 @@ public class SQLGameDAO implements GameDAO {
         var statement = "UPDATE game SET whiteUsername=?, blackUsername=?, game=?, json=? WHERE gameID=?";
         String gameJson = new Gson().toJson(data.game());
         String json = new Gson().toJson(data);
-        executeUpdate(statement, data.whiteUsername(),data.blackUsername(), gameJson, json);
+        executeUpdate(statement, data.whiteUsername(),data.blackUsername(), gameJson, json, data.gameID());
     }
 
     @Override
@@ -136,7 +135,7 @@ public class SQLGameDAO implements GameDAO {
                 }
             }
         } catch (SQLException ex) {
-            throw new DataAccessException(String.format("Unable to configure database: %s", ex.getMessage()));
+            throw new DataAccessException(String.format("Error: Unable to configure database: %s", ex.getMessage()));
         }
     }
 }
