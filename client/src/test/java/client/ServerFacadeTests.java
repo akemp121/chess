@@ -1,18 +1,25 @@
 package client;
 
+import exception.ResponseException;
 import org.junit.jupiter.api.*;
 import server.Server;
+import server.ServerFacade;
+import model.*;
+import requests.*;
+import responses.*;
 
 
 public class ServerFacadeTests {
 
     private static Server server;
+    static ServerFacade facade;
 
     @BeforeAll
     public static void init() {
         server = new Server();
-        var port = server.run(0);
+        var port = server.run(8080);
         System.out.println("Started test HTTP server on " + port);
+        facade = new ServerFacade(String.format("http://localhost:%d", port));
     }
 
     @AfterAll
@@ -20,10 +27,17 @@ public class ServerFacadeTests {
         server.stop();
     }
 
-
     @Test
-    public void sampleTest() {
-        Assertions.assertTrue(true);
+    public void register() {
+
+        RegisterRequest request = new RegisterRequest("player1", "password", "p1@email.com");
+
+        try {
+            var authData = facade.register(request);
+            Assertions.assertTrue(authData.authToken().length() > 10);
+        } catch (ResponseException e) {
+            Assertions.fail("Unexpected ResponseException: " + e.getMessage());
+        }
     }
 
 }

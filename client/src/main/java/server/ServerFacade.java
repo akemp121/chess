@@ -1,7 +1,10 @@
+package server;
+
 import com.google.gson.Gson;
-import model.*;
 
 import exception.*;
+import requests.*;
+import responses.*;
 
 import java.net.*;
 import java.net.http.*;
@@ -16,6 +19,18 @@ public class ServerFacade {
 
     public ServerFacade(String url) {
         serverUrl = url;
+    }
+
+    public RegisterResponse register(RegisterRequest request) throws ResponseException {
+        var req = buildRequest("POST", "/user", request);
+        var response = sendRequest(req);
+        return handleResponse(response, RegisterResponse.class);
+    }
+
+    public LoginResponse login(LoginRequest request) throws ResponseException {
+        var req = buildRequest("POST", "/session", request);
+        var response = sendRequest(req);
+        return handleResponse(response, LoginResponse.class);
     }
 
     private HttpRequest buildRequest(String method, String path, Object body) {
