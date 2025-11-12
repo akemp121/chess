@@ -37,11 +37,12 @@ public class ServerFacadeTests {
     @DisplayName("Register Successful")
     public void registerSuccessful() {
 
-        RegisterRequest request = new RegisterRequest("player2", "password", "p1@email.com");
+        RegisterRequest request = new RegisterRequest("q'em ha", "massawichik", "qh@email.com");
 
         try {
             var authData = facade.register(request);
-            Assertions.assertTrue(authData.authToken().length() > 10);
+            Assertions.assertTrue(authData.authToken().length() > 10,
+                    "No data returned!");
         } catch (ResponseException e) {
             Assertions.fail("Unexpected ResponseException: " + e.getMessage());
         }
@@ -56,6 +57,29 @@ public class ServerFacadeTests {
         Assertions.assertThrows(ResponseException.class, () -> {
             facade.register(request);
         }, "Registered user without any data!");
+
+    }
+
+    @Test
+    @DisplayName("Login Successful")
+    public void loginSuccessful() {
+
+        try {
+
+            RegisterRequest request = new RegisterRequest("q'em ha 2", "massawichik", "qh2@email.com");
+
+            facade.register(request);
+
+            LoginRequest logRequest = new LoginRequest("q'em ha 2", "massawichik");
+
+            var loginData = facade.login(logRequest);
+
+            Assertions.assertTrue(loginData.authToken().length() > 10,
+                    "No data returned!");
+
+        } catch (ResponseException e) {
+            Assertions.fail("Unexpected ResponseException: " + e.getMessage());
+        }
 
     }
 
