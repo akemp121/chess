@@ -33,6 +33,12 @@ public class ServerFacade {
         return handleResponse(response, LoginResponse.class);
     }
 
+    public LogoutResponse logout(LogoutRequest request) throws ResponseException {
+        var req = buildRequest("DELETE", "/session", request);
+        var response = sendRequest(req);
+        return handleResponse(response, LogoutResponse.class);
+    }
+
     public void clear() throws ResponseException {
         var req = buildRequest("DELETE", "/db", null);
         sendRequest(req);
