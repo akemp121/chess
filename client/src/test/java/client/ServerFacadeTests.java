@@ -128,6 +128,29 @@ public class ServerFacadeTests {
 
     }
 
+    @Test
+    @DisplayName("Logout Fail")
+    public void logoutFail() {
+
+        try {
+
+            RegisterRequest request = new RegisterRequest("chaab'il ixq", "laainchaab'il", "ci@email.com");
+
+            facade.register(request);
+
+            LogoutRequest logoutRequest = new LogoutRequest(null);
+
+            Assertions.assertThrows(ResponseException.class, () -> {
+                facade.logout(logoutRequest);
+            }, "Logged out without authToken!");
+
+
+        } catch (ResponseException e) {
+            Assertions.fail("Unexpected ResponseException: " + e.getMessage());
+        }
+
+    }
+
 
 
 }
