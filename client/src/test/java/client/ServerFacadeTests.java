@@ -20,6 +20,12 @@ public class ServerFacadeTests {
         var port = server.run(8080);
         System.out.println("Started test HTTP server on " + port);
         facade = new ServerFacade(String.format("http://localhost:%d", port));
+        try {
+            facade.clear();
+        } catch (ResponseException e) {
+            Assertions.fail("Database failed to clear!");
+        }
+
     }
 
     @AfterAll
@@ -28,9 +34,10 @@ public class ServerFacadeTests {
     }
 
     @Test
-    public void register() {
+    @DisplayName("Register Successful")
+    public void registerSuccessful() {
 
-        RegisterRequest request = new RegisterRequest("player1", "password", "p1@email.com");
+        RegisterRequest request = new RegisterRequest("player2", "password", "p1@email.com");
 
         try {
             var authData = facade.register(request);
@@ -39,5 +46,19 @@ public class ServerFacadeTests {
             Assertions.fail("Unexpected ResponseException: " + e.getMessage());
         }
     }
+
+    @Test
+    @DisplayName("Register Fail")
+    public void registerFail() {
+
+        RegisterRequest request = new RegisterRequest(null, null, null);
+
+        Assertions.assertThrows(ResponseException.class, () -> {
+            facade.register(request);
+        }, "Registered user without any data!");
+
+    }
+
+
 
 }

@@ -33,6 +33,11 @@ public class ServerFacade {
         return handleResponse(response, LoginResponse.class);
     }
 
+    public void clear() throws ResponseException {
+        var req = buildRequest("DELETE", "/db", null);
+        sendRequest(req);
+    }
+
     private HttpRequest buildRequest(String method, String path, Object body) {
         var request = HttpRequest.newBuilder()
                 .uri(URI.create(serverUrl + path))
@@ -55,7 +60,7 @@ public class ServerFacade {
         try {
             return client.send(request, BodyHandlers.ofString());
         } catch (Exception ex) {
-            throw new ResponseException(ResponseException.Code.ServerError, ex.getMessage());
+            throw new ResponseException(500, ex.getMessage());
         }
     }
 
@@ -66,7 +71,7 @@ public class ServerFacade {
             if (body != null) {
                 throw ResponseException.fromJson(body);
             }
-            throw new ResponseException(ResponseException.fromHttpStatusCode(status), "other failure: " + status);
+            throw new ResponseException(status, "other failure: " + status);
         }
         if (responseClass != null) {
             return new Gson().fromJson(response.body(), responseClass);

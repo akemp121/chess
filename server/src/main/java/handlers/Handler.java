@@ -27,13 +27,13 @@ public class Handler {
             ctx.json(serializer.toJson(response));
             ctx.status(200);
         } catch (DataAccessException e) {
-            ctx.json(serializer.toJson(new ErrorResponse(e.getMessage())));
+            ctx.json(serializer.toJson(new ErrorResponse(e.getMessage(), 500)));
             ctx.status(500);
         } catch (AlreadyTakenException e) {
-            ctx.json(serializer.toJson(new ErrorResponse(e.getMessage())));
+            ctx.json(serializer.toJson(new ErrorResponse(e.getMessage(), 403)));
             ctx.status(403);
         } catch (BadRequest e) {
-            ctx.json(serializer.toJson(new ErrorResponse(e.getMessage())));
+            ctx.json(serializer.toJson(new ErrorResponse(e.getMessage(), 400)));
             ctx.status(400);
         }
     }
@@ -46,13 +46,13 @@ public class Handler {
             ctx.json(serializer.toJson(response));
             ctx.status(200);
         } catch (DataAccessException e) {
-            ctx.json(serializer.toJson(new ErrorResponse(e.getMessage())));
+            ctx.json(serializer.toJson(new ErrorResponse(e.getMessage(), 500)));
             ctx.status(500);
         } catch (UnauthorizedException e) {
-            ctx.json(serializer.toJson(new ErrorResponse(e.getMessage())));
+            ctx.json(serializer.toJson(new ErrorResponse(e.getMessage(), 401)));
             ctx.status(401);
         } catch (BadRequest e) {
-            ctx.json(serializer.toJson(new ErrorResponse(e.getMessage())));
+            ctx.json(serializer.toJson(new ErrorResponse(e.getMessage(), 400)));
             ctx.status(400);
         }
     }
@@ -65,10 +65,10 @@ public class Handler {
             ctx.json(serializer.toJson(response));
             ctx.status(200);
         } catch (DataAccessException e) {
-            ctx.json(serializer.toJson(new ErrorResponse(e.getMessage())));
+            ctx.json(serializer.toJson(new ErrorResponse(e.getMessage(), 500)));
             ctx.status(500);
         } catch (UnauthorizedException e) {
-            ctx.json(serializer.toJson(new ErrorResponse(e.getMessage())));
+            ctx.json(serializer.toJson(new ErrorResponse(e.getMessage(), 401)));
             ctx.status(401);
         }
     }
@@ -83,13 +83,13 @@ public class Handler {
             ctx.json(serializer.toJson(response));
             ctx.status(200);
         } catch (DataAccessException e) {
-            ctx.json(serializer.toJson(new ErrorResponse(e.getMessage())));
+            ctx.json(serializer.toJson(new ErrorResponse(e.getMessage(), 500)));
             ctx.status(500);
         } catch (UnauthorizedException e) {
-            ctx.json(serializer.toJson(new ErrorResponse(e.getMessage())));
+            ctx.json(serializer.toJson(new ErrorResponse(e.getMessage(), 401)));
             ctx.status(401);
         } catch (BadRequest e) {
-            ctx.json(serializer.toJson(new ErrorResponse(e.getMessage())));
+            ctx.json(serializer.toJson(new ErrorResponse(e.getMessage(), 400)));
             ctx.status(400);
         }
     }
@@ -102,10 +102,10 @@ public class Handler {
             ctx.json(serializer.toJson(response));
             ctx.status(200);
         } catch (DataAccessException e) {
-            ctx.json(serializer.toJson(new ErrorResponse(e.getMessage())));
+            ctx.json(serializer.toJson(new ErrorResponse(e.getMessage(), 500)));
             ctx.status(500);
         } catch (UnauthorizedException e) {
-            ctx.json(serializer.toJson(new ErrorResponse(e.getMessage())));
+            ctx.json(serializer.toJson(new ErrorResponse(e.getMessage(), 401)));
             ctx.status(401);
         }
     }
@@ -120,16 +120,16 @@ public class Handler {
             ctx.json(serializer.toJson(response));
             ctx.status(200);
         } catch (DataAccessException e) {
-            ctx.json(serializer.toJson(new ErrorResponse(e.getMessage())));
+            ctx.json(serializer.toJson(new ErrorResponse(e.getMessage(), 500)));
             ctx.status(500);
         } catch (UnauthorizedException e) {
-            ctx.json(serializer.toJson(new ErrorResponse(e.getMessage())));
+            ctx.json(serializer.toJson(new ErrorResponse(e.getMessage(), 401)));
             ctx.status(401);
         } catch (AlreadyTakenException e) {
-            ctx.json(serializer.toJson(new ErrorResponse(e.getMessage())));
+            ctx.json(serializer.toJson(new ErrorResponse(e.getMessage(), 403)));
             ctx.status(403);
         } catch (BadRequest e) {
-            ctx.json(serializer.toJson(new ErrorResponse(e.getMessage())));
+            ctx.json(serializer.toJson(new ErrorResponse(e.getMessage(), 400)));
             ctx.status(400);
         }
     }
@@ -141,7 +141,7 @@ public class Handler {
             ctx.json(serializer.toJson(response));
             ctx.status(200);
         } catch (DataAccessException e) {
-            ctx.json(serializer.toJson(new ErrorResponse(e.getMessage())));
+            ctx.json(serializer.toJson(new ErrorResponse(e.getMessage(), 500)));
             ctx.status(500);
         }
 
