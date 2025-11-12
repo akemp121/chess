@@ -151,6 +151,29 @@ public class ServerFacadeTests {
 
     }
 
+    @Test
+    @DisplayName("Create Game Successful")
+    public void createGameSuccessful() {
+
+        try {
+
+            RegisterRequest request = new RegisterRequest("yiib'anel b'atzul", "laainchaab'il", "yb@email.com");
+
+            var loginData = facade.register(request);
+
+            CreateGameRequest createGameRequest = new CreateGameRequest(loginData.authToken(), "li nimla pleet");
+
+            var gameData = facade.createGame(createGameRequest);
+
+            Assertions.assertTrue(gameData.gameID() != 0,
+                    "gameID not returned!");
+
+        } catch (ResponseException e) {
+            Assertions.fail("Unexpected ResponseException: " + e.getMessage());
+        }
+
+    }
+
 
 
 }
