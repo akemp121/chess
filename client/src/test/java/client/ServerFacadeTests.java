@@ -229,4 +229,35 @@ public class ServerFacadeTests {
 
     }
 
+    @Test
+    @DisplayName("List Games Fail")
+    public void listGamesFail() {
+
+        try {
+
+            RegisterRequest request = new RegisterRequest("laj yaj", "laainchaab'il", "ly@email.com");
+
+            var loginData = facade.register(request);
+
+            CreateGameRequest createGameRequest = new CreateGameRequest(loginData.authToken(), "li xka'il nimla pleet");
+
+            CreateGameRequest createGameRequest2 = new CreateGameRequest(loginData.authToken(), "li ro'il nimla pleet");
+
+            facade.createGame(createGameRequest);
+
+            facade.createGame(createGameRequest2);
+
+            ListGamesRequest listGamesRequest = new ListGamesRequest(null);
+
+            Assertions.assertThrows(ResponseException.class, () -> {
+                facade.listGames(listGamesRequest);
+            }, "Tried to list games without authToken!");
+
+
+        } catch (ResponseException e) {
+            Assertions.fail("Unexpected ResponseException: " + e.getMessage());
+        }
+
+    }
+
 }
