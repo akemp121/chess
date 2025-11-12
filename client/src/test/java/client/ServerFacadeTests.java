@@ -8,6 +8,8 @@ import model.*;
 import requests.*;
 import responses.*;
 
+import java.util.ArrayList;
+
 
 public class ServerFacadeTests {
 
@@ -196,6 +198,35 @@ public class ServerFacadeTests {
 
     }
 
+    @Test
+    @DisplayName("List Games Successful")
+    public void listGamesSuccessful() {
 
+        try {
+
+            RegisterRequest request = new RegisterRequest("li nim aj yiib'anel b'atzul", "laainchaab'il", "lnayb@email.com");
+
+            var loginData = facade.register(request);
+
+            CreateGameRequest createGameRequest = new CreateGameRequest(loginData.authToken(), "li xkab'il nimla pleet");
+
+            CreateGameRequest createGameRequest2 = new CreateGameRequest(loginData.authToken(), "li roxil nimla pleet");
+
+            facade.createGame(createGameRequest);
+
+            facade.createGame(createGameRequest2);
+
+            ListGamesRequest listGamesRequest = new ListGamesRequest(loginData.authToken());
+
+            var listOfGames = facade.listGames(listGamesRequest);
+
+            Assertions.assertNotEquals(new ArrayList<>(), listOfGames,
+                    "Games not returned!");
+
+        } catch (ResponseException e) {
+            Assertions.fail("Unexpected ResponseException: " + e.getMessage());
+        }
+
+    }
 
 }
