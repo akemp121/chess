@@ -174,6 +174,28 @@ public class ServerFacadeTests {
 
     }
 
+    @Test
+    @DisplayName("Create Game Fail")
+    public void createGameFail() {
+
+        try {
+
+            RegisterRequest request = new RegisterRequest("yiib' iru winq", "laainchaab'il", "yiw@email.com");
+
+            facade.register(request);
+
+            CreateGameRequest createGameRequest = new CreateGameRequest(null, "li nimla pleet");
+
+            Assertions.assertThrows(ResponseException.class, () -> {
+                facade.createGame(createGameRequest);
+            }, "Game created without authToken!");
+
+        } catch (ResponseException e) {
+            Assertions.fail("Unexpected ResponseException: " + e.getMessage());
+        }
+
+    }
+
 
 
 }
