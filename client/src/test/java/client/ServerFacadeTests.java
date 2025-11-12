@@ -108,7 +108,25 @@ public class ServerFacadeTests {
 
     }
 
+    @Test
+    @DisplayName("Logout Successful")
+    public void logoutSuccessful() {
 
+        try {
+
+            RegisterRequest request = new RegisterRequest("chaab'il winq", "laainchaab'il", "cw@email.com");
+
+            var loginData = facade.register(request);
+
+            LogoutRequest logoutRequest = new LogoutRequest(loginData.authToken());
+
+            facade.logout(logoutRequest);
+
+        } catch (ResponseException e) {
+            Assertions.fail("Unexpected ResponseException: " + e.getMessage());
+        }
+
+    }
 
 
 

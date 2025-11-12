@@ -22,34 +22,37 @@ public class ServerFacade {
     }
 
     public RegisterResponse register(RegisterRequest request) throws ResponseException {
-        var req = buildRequest("POST", "/user", request);
+        var req = buildRequest("POST", "/user", request, null);
         var response = sendRequest(req);
         return handleResponse(response, RegisterResponse.class);
     }
 
     public LoginResponse login(LoginRequest request) throws ResponseException {
-        var req = buildRequest("POST", "/session", request);
+        var req = buildRequest("POST", "/session", request, null);
         var response = sendRequest(req);
         return handleResponse(response, LoginResponse.class);
     }
 
     public LogoutResponse logout(LogoutRequest request) throws ResponseException {
-        var req = buildRequest("DELETE", "/session", request);
+        var req = buildRequest("DELETE", "/session", null, request.authToken());
         var response = sendRequest(req);
         return handleResponse(response, LogoutResponse.class);
     }
 
     public void clear() throws ResponseException {
-        var req = buildRequest("DELETE", "/db", null);
+        var req = buildRequest("DELETE", "/db", null, null);
         sendRequest(req);
     }
 
-    private HttpRequest buildRequest(String method, String path, Object body) {
+    private HttpRequest buildRequest(String method, String path, Object body, String authToken) {
         var request = HttpRequest.newBuilder()
                 .uri(URI.create(serverUrl + path))
                 .method(method, makeRequestBody(body));
         if (body != null) {
             request.setHeader("Content-Type", "application/json");
+        }
+        if (authToken != null) {
+            request.setHeader("authorization", authToken);
         }
         return request.build();
     }
