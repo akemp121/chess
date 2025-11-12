@@ -284,4 +284,31 @@ public class ServerFacadeTests {
 
     }
 
+    @Test
+    @DisplayName("Join Game Fail")
+    public void joinGameFail() {
+
+        try {
+
+            RegisterRequest request = new RegisterRequest("laj mama b'atz q'eq", "laainchaab'il", "lmbq@email.com");
+
+            var loginData = facade.register(request);
+
+            CreateGameRequest createGameRequest = new CreateGameRequest(loginData.authToken(), "eb' li winq");
+
+            facade.createGame(createGameRequest);
+
+            JoinGameRequest joinGameRequest = new JoinGameRequest(null, null, null);
+
+            Assertions.assertThrows(ResponseException.class, () -> {
+                facade.joinGame(joinGameRequest);
+            }, "Tried to join game with bad data!");
+
+
+        } catch (ResponseException e) {
+            Assertions.fail("Unexpected ResponseException: " + e.getMessage());
+        }
+
+    }
+
 }
