@@ -260,4 +260,28 @@ public class ServerFacadeTests {
 
     }
 
+    @Test
+    @DisplayName("Join Game Successful")
+    public void joinGameSuccessful() {
+
+        try {
+
+            RegisterRequest request = new RegisterRequest("laj yak", "laainchaab'il", "ly@email.com");
+
+            var loginData = facade.register(request);
+
+            CreateGameRequest createGameRequest = new CreateGameRequest(loginData.authToken(), "li nimla ajedrez");
+
+            var gameData = facade.createGame(createGameRequest);
+
+            JoinGameRequest joinGameRequest = new JoinGameRequest(loginData.authToken(), "BLACK", gameData.gameID());
+
+            facade.joinGame(joinGameRequest);
+
+        } catch (ResponseException e) {
+            Assertions.fail("Unexpected ResponseException: " + e.getMessage());
+        }
+
+    }
+
 }
