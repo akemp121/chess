@@ -20,12 +20,15 @@ public class ServerFacadeTests {
         var port = server.run(8080);
         System.out.println("Started test HTTP server on " + port);
         facade = new ServerFacade(String.format("http://localhost:%d", port));
+    }
+
+    @BeforeAll
+    public static void reset() {
         try {
             facade.clear();
         } catch (ResponseException e) {
             Assertions.fail("Database failed to clear!");
         }
-
     }
 
     @AfterAll
@@ -76,6 +79,28 @@ public class ServerFacadeTests {
 
             Assertions.assertTrue(loginData.authToken().length() > 10,
                     "No data returned!");
+
+        } catch (ResponseException e) {
+            Assertions.fail("Unexpected ResponseException: " + e.getMessage());
+        }
+
+    }
+
+    @Test
+    @DisplayName("Login Fail")
+    public void loginFail() {
+
+        try {
+
+            RegisterRequest request = new RegisterRequest("q'em ha 3", "massawichik", "qh2@email.com");
+
+            facade.register(request);
+
+            LoginRequest logRequest = new LoginRequest(null, "moko us ta");
+
+            Assertions.assertThrows(ResponseException.class, () -> {
+                facade.login(logRequest);
+            }, "Logged in user without a username!");
 
         } catch (ResponseException e) {
             Assertions.fail("Unexpected ResponseException: " + e.getMessage());
