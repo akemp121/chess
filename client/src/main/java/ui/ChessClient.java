@@ -6,7 +6,9 @@ import responses.*;
 import server.ServerFacade;
 import ui.States;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import model.*;
 import java.util.Scanner;
 
 import static ui.EscapeSequences.*;
@@ -59,6 +61,8 @@ public class ChessClient {
                 case "login" -> login(params);
                 case "logout" -> logout();
                 case "create_game" -> createGame(params);
+                case "list_games" -> listGames();
+                case "quit" -> "quit";
                 default -> help();
             };
         } catch (Exception e) {
@@ -99,6 +103,21 @@ public class ChessClient {
             return String.format("Created game %s with game ID: %d!", params[0], id);
         }
         throw new ResponseException(400, "Expected: <game_name>");
+    }
+
+    private String listGames() throws ResponseException {
+        ListGamesResponse lgr = server.listGames(new ListGamesRequest(authToken));
+        ArrayList<ListGameData> games = lgr.games();
+        StringBuilder sb = new StringBuilder();
+        sb.append("Available Games: \n");
+        if (games == null || games.isEmpty()) {
+            sb.append("- no active games");
+            return sb.toString();
+        }
+        for (ListGameData g : games) {
+            sb.append(String.format("- %d: %s, Black: %s, White: %s\n", g.gameID(), g.gameName(), g.blackUsername(), g.whiteUsername()));
+        }
+        return sb.toString();
     }
 
     private String help() {
