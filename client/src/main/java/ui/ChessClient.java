@@ -18,6 +18,7 @@ public class ChessClient {
     private final ServerFacade server;
     private States state = States.LOGGED_OUT;
     private String authToken;
+    private ArrayList<ListGameData> gameList = new ArrayList<ListGameData>();
 
     public ChessClient(String serverUrl) throws ResponseException {
         server = new ServerFacade(serverUrl);
@@ -62,6 +63,7 @@ public class ChessClient {
                 case "logout" -> logout();
                 case "create_game" -> createGame(params);
                 case "list_games" -> listGames();
+                case "play_game" -> playGame(params);
                 case "quit" -> "quit";
                 default -> help();
             };
@@ -98,9 +100,8 @@ public class ChessClient {
 
     private String createGame(String... params) throws ResponseException {
         if (params.length == 1) {
-            CreateGameResponse cgr = server.createGame(new CreateGameRequest(authToken, params[0]));
-            Integer id = cgr.gameID();
-            return String.format("Created game %s with game ID: %d!", params[0], id);
+            server.createGame(new CreateGameRequest(authToken, params[0]));
+            return String.format("Created game %s!", params[0]);
         }
         throw new ResponseException(400, "Expected: <game_name>");
     }
@@ -114,10 +115,30 @@ public class ChessClient {
             sb.append("- no active games");
             return sb.toString();
         }
-        for (ListGameData g : games) {
-            sb.append(String.format("- %d: %s, Black: %s, White: %s\n", g.gameID(), g.gameName(), g.blackUsername(), g.whiteUsername()));
+        for (int i = 0; i < games.size(); i++) {
+            sb.append(String.format("- %d: %s, Black: %s, White: %s\n", i + 1,
+                    games.get(i).gameName(), games.get(i).blackUsername(), games.get(i).whiteUsername()));
         }
+        gameList.clear();
+        gameList.addAll(games);
         return sb.toString();
+    }
+
+    private String playGame(String... params) throws ResponseException {
+        if (params.length == 2) {
+            int gameNumber;
+            try {
+                gameNumber = Integer.parseInt(params[0]);
+                if (gameNumber <= 0) {
+                    throw new ResponseException(400, "Game id must be a valid integer!");
+                }
+            } catch (Exception e) {
+                throw new ResponseException(400, "Game id must be a valid integer!");
+            }
+            server.joinGame(new JoinGameRequest(authToken, params[1].toUpperCase(), gameList.get(gameNumber - 1).gameID()));
+            return String.format("Joined game %s as color %s!", gameList.get(gameNumber - 1).gameName(), params[1]);
+        }
+        throw new ResponseException(400, "Expected: <game_name>");
     }
 
     private String help() {
