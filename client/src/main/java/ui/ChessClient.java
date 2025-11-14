@@ -58,6 +58,7 @@ public class ChessClient {
                 case "register" -> register(params);
                 case "login" -> login(params);
                 case "logout" -> logout();
+                case "create_game" -> createGame(params);
                 default -> help();
             };
         } catch (Exception e) {
@@ -89,6 +90,15 @@ public class ChessClient {
         server.logout(new LogoutRequest(authToken));
         state = States.LOGGED_OUT;
         return "Logged out!";
+    }
+
+    private String createGame(String... params) throws ResponseException {
+        if (params.length == 1) {
+            CreateGameResponse cgr = server.createGame(new CreateGameRequest(authToken, params[0]));
+            Integer id = cgr.gameID();
+            return String.format("Created game %s with game ID: %d!", params[0], id);
+        }
+        throw new ResponseException(400, "Expected: <game_name>");
     }
 
     private String help() {
