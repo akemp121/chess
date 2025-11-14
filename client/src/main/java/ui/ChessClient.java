@@ -64,6 +64,7 @@ public class ChessClient {
                 case "create_game" -> createGame(params);
                 case "list_games" -> listGames();
                 case "play_game" -> playGame(params);
+                case "observe_game" -> observeGame(params);
                 case "quit" -> "quit";
                 default -> help();
             };
@@ -138,7 +139,23 @@ public class ChessClient {
             server.joinGame(new JoinGameRequest(authToken, params[1].toUpperCase(), gameList.get(gameNumber - 1).gameID()));
             return String.format("Joined game %s as color %s!", gameList.get(gameNumber - 1).gameName(), params[1]);
         }
-        throw new ResponseException(400, "Expected: <game_name>");
+        throw new ResponseException(400, "Expected: <game_id> <white/black>");
+    }
+
+    private String observeGame(String... params) throws ResponseException {
+        if (params.length == 1) {
+            int gameNumber;
+            try {
+                gameNumber = Integer.parseInt(params[0]);
+                if (gameNumber <= 0) {
+                    throw new ResponseException(400, "Game id must be a valid integer!");
+                }
+            } catch (Exception e) {
+                throw new ResponseException(400, "Game id must be a valid integer!");
+            }
+            return String.format("Observing game %s!", gameList.get(gameNumber - 1).gameName());
+        }
+        throw new ResponseException(400, "Expected: <game_id>");
     }
 
     private String help() {
