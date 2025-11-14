@@ -3,6 +3,10 @@ package ui;
 import exception.ResponseException;
 import server.ServerFacade;
 import ui.States;
+
+import java.util.Arrays;
+import java.util.Scanner;
+
 import static ui.EscapeSequences.*;
 
 public class ChessClient {
@@ -17,6 +21,34 @@ public class ChessClient {
     public void run() {
         System.out.println(SET_TEXT_COLOR_GREEN + "Welcome to 240 Chess!");
         System.out.println(SET_TEXT_COLOR_GREEN + help());
+
+        Scanner scanner = new Scanner(System.in);
+        var result = "";
+        while (!result.equals("quit")) {
+            printPrompt();
+            String line = scanner.nextLine();
+        }
+    }
+
+    private void printPrompt() {
+        System.out.println("\n" + SET_TEXT_COLOR_GREEN + ">>> ");
+    }
+
+    private String evaluate(String input) {
+        try {
+            String[] tokens = input.toLowerCase().split(" ");
+            String cmd;
+            if (!tokens[0].isEmpty()) {
+                cmd = tokens[0];
+            } else {
+                cmd = "help";
+            }
+            String[] params = Arrays.copyOfRange(tokens, 1, tokens.length);
+
+        } catch (Exception e) {
+            return e.getMessage();
+        }
+        return "stuff";
     }
 
     private String help() {
