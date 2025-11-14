@@ -1,8 +1,8 @@
 package ui;
 
 import exception.ResponseException;
-import requests.LoginRequest;
-import requests.RegisterRequest;
+import requests.*;
+import responses.*;
 import server.ServerFacade;
 import ui.States;
 
@@ -15,6 +15,7 @@ public class ChessClient {
 
     private final ServerFacade server;
     private States state = States.LOGGED_OUT;
+    private String authToken;
 
     public ChessClient(String serverUrl) throws ResponseException {
         server = new ServerFacade(serverUrl);
@@ -56,6 +57,7 @@ public class ChessClient {
             return switch (cmd) {
                 case "register" -> register(params);
                 case "login" -> login(params);
+                case "logout" -> logout();
                 default -> help();
             };
         } catch (Exception e) {
@@ -64,8 +66,9 @@ public class ChessClient {
     }
 
     private String register(String... params) throws ResponseException {
-        if (params.length >= 1) {
-            server.register(new RegisterRequest(params[0], params[1], params[2]));
+        if (params.length == 3) {
+            RegisterResponse reg = server.register(new RegisterRequest(params[0], params[1], params[2]));
+            authToken = reg.authToken();
             state = States.LOGGED_IN;
             return String.format("Registered and logged in as %s!", params[0]);
         }
@@ -73,12 +76,19 @@ public class ChessClient {
     }
 
     private String login(String... params) throws ResponseException {
-        if (params.length >= 1) {
-            server.login(new LoginRequest(params[0], params[1]));
+        if (params.length == 2) {
+            LoginResponse log = server.login(new LoginRequest(params[0], params[1]));
+            authToken = log.authToken();
             state = States.LOGGED_IN;
             return String.format("Logged in as %s!", params[0]);
         }
         throw new ResponseException(400, "Expected: <username> <password>");
+    }
+
+    private String logout() throws ResponseException {
+        server.logout(new LogoutRequest(authToken));
+        state = States.LOGGED_OUT;
+        return "Logged out!";
     }
 
     private String help() {
