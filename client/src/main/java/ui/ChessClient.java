@@ -1,6 +1,8 @@
 package ui;
 
 import exception.ResponseException;
+import requests.LoginRequest;
+import requests.RegisterRequest;
 import server.ServerFacade;
 import ui.States;
 
@@ -27,6 +29,13 @@ public class ChessClient {
         while (!result.equals("quit")) {
             printPrompt();
             String line = scanner.nextLine();
+            try {
+                result = evaluate(line);
+                System.out.print(SET_TEXT_COLOR_GREEN + result);
+            } catch (Throwable e) {
+                var msg = e.toString();
+                System.out.print(msg);
+            }
         }
     }
 
@@ -44,11 +53,32 @@ public class ChessClient {
                 cmd = "help";
             }
             String[] params = Arrays.copyOfRange(tokens, 1, tokens.length);
-
+            return switch (cmd) {
+                case "register" -> register(params);
+                case "login" -> login(params);
+                default -> help();
+            };
         } catch (Exception e) {
             return e.getMessage();
         }
-        return "stuff";
+    }
+
+    private String register(String... params) throws ResponseException {
+        if (params.length >= 1) {
+            server.register(new RegisterRequest(params[0], params[1], params[2]));
+            state = States.LOGGED_IN;
+            return String.format("Registered and logged in as %s!", params[0]);
+        }
+        throw new ResponseException(400, "Expected: <username> <password> <email>");
+    }
+
+    private String login(String... params) throws ResponseException {
+        if (params.length >= 1) {
+            server.login(new LoginRequest(params[0], params[1]));
+            state = States.LOGGED_IN;
+            return String.format("Logged in as %s!", params[0]);
+        }
+        throw new ResponseException(400, "Expected: <username> <password>");
     }
 
     private String help() {
