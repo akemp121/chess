@@ -2,12 +2,8 @@ package dataaccess;
 
 import dataaccess.sql.*;
 import org.junit.jupiter.api.*;
-import java.sql.*;
-import java.util.*;
 
 import org.mindrot.jbcrypt.BCrypt;
-import requests.*;
-import responses.*;
 import model.*;
 
 public class SQLUserDAOTests {

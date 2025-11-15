@@ -3,9 +3,9 @@ package handlers;
 import dataaccess.*;
 import io.javalin.http.*;
 import com.google.gson.Gson;
+import services.Service;
 import requests.*;
 import responses.*;
-import services.Service;
 
 public class Handler {
 

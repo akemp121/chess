@@ -2,11 +2,9 @@ package ui;
 
 import chess.ChessBoard;
 import exception.ResponseException;
+import server.ServerFacade;
 import requests.*;
 import responses.*;
-import server.ServerFacade;
-import ui.States;
-import ui.BoardIllustrator;
 
 import java.util.ArrayList;
 import java.util.Arrays;

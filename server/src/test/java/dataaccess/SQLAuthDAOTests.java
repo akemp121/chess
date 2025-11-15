@@ -1,14 +1,8 @@
 package dataaccess;
 
-import chess.ChessGame;
 import dataaccess.sql.*;
 import org.junit.jupiter.api.*;
-import java.sql.*;
-import java.util.*;
 
-import requests.*;
-import responses.*;
-import dataaccess.*;
 import model.*;
 
 public class SQLAuthDAOTests {

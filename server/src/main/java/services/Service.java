@@ -1,12 +1,11 @@
 package services;
 
-import dataaccess.memory.*;
 import dataaccess.sql.*;
 import org.mindrot.jbcrypt.BCrypt;
-import requests.*;
-import responses.*;
 import dataaccess.*;
 import model.*;
+import requests.*;
+import responses.*;
 
 import java.util.ArrayList;
 
