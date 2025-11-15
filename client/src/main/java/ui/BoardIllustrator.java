@@ -66,38 +66,30 @@ public class BoardIllustrator {
         printSpaceWithNumber(out, rowNum);
         if (teamColor.equals("WHITE")) {
             for (int i = 0; i < 8; i++) {
-                // alternating colors
-                if ((i + rowNum) % 2 == 0) {
-                    out.print(SET_BG_COLOR_WHITE);
-                } else {
-                    out.print(SET_BG_COLOR_BLACK);
-                }
-                if (row[i] == null) {
-                    out.print(" ");
-                } else {
-                    printPieceLetter(row[i], out);
-                }
-                // printing spaces in between
-                out.print(" ");
+                printLine(i, rowNum, row, out);
             }
         } else {
             for (int i = 7; i >= 0; i--) {
-                // alternating colors
-                if ((i + rowNum) % 2 == 0) {
-                    out.print(SET_BG_COLOR_WHITE);
-                } else {
-                    out.print(SET_BG_COLOR_BLACK);
-                }
-                if (row[i] == null) {
-                    out.print(" ");
-                } else {
-                    printPieceLetter(row[i], out);
-                }
-                // printing spaces in between
-                out.print(" ");
+                printLine(i, rowNum, row, out);
             }
         }
         printSpaceWithNumber(out, rowNum);
+    }
+
+    private static void printLine(int i, int rowNum, ChessPiece[] row, PrintStream out) {
+        // alternating colors
+        if ((i + rowNum) % 2 == 0) {
+            out.print(SET_BG_COLOR_WHITE);
+        } else {
+            out.print(SET_BG_COLOR_BLACK);
+        }
+        if (row[i] == null) {
+            out.print(" ");
+        } else {
+            printPieceLetter(row[i], out);
+        }
+        // printing spaces in between
+        out.print(" ");
     }
 
     private static void printSpace(PrintStream out) {

@@ -137,9 +137,9 @@ public class ChessClient {
                 throw new ResponseException(400, "Game id must be a valid integer!");
             }
             server.joinGame(new JoinGameRequest(authToken, params[1].toUpperCase(), gameList.get(gameNumber - 1).gameID()));
-            ChessBoard new_board = new ChessBoard();
-            new_board.resetBoard();
-            BoardIllustrator.illustrate(new_board, params[1].toUpperCase());
+            ChessBoard newBoard = new ChessBoard();
+            newBoard.resetBoard();
+            BoardIllustrator.illustrate(newBoard, params[1].toUpperCase());
             return String.format("Joined game %s as color %s!", gameList.get(gameNumber - 1).gameName(), params[1]);
         }
         throw new ResponseException(400, "Expected: <game_id> <white/black>");
@@ -156,9 +156,9 @@ public class ChessClient {
             } catch (Exception e) {
                 throw new ResponseException(400, "Game id must be a valid integer!");
             }
-            ChessBoard new_board = new ChessBoard();
-            new_board.resetBoard();
-            BoardIllustrator.illustrate(new_board, "WHITE");
+            ChessBoard newBoard = new ChessBoard();
+            newBoard.resetBoard();
+            BoardIllustrator.illustrate(newBoard, "WHITE");
             return String.format("Observing game %s!", gameList.get(gameNumber - 1).gameName());
         }
         throw new ResponseException(400, "Expected: <game_id>");
