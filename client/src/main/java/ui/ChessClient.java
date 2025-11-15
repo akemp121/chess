@@ -132,6 +132,8 @@ public class ChessClient {
                 gameNumber = Integer.parseInt(params[0]);
                 if (gameNumber <= 0) {
                     throw new ResponseException(400, "Game id must be a valid integer!");
+                } else if (gameNumber > gameList.size()) {
+                    throw new ResponseException(400, "Game doesn't exist!");
                 }
             } catch (Exception e) {
                 throw new ResponseException(400, "Game id must be a valid integer!");

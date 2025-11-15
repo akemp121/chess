@@ -63,7 +63,7 @@ public class BoardIllustrator {
     }
 
     private static void printRow(PrintStream out, String teamColor, ChessPiece[] row, int rowNum) {
-        printSpaceWithNumber(out, rowNum);
+        printSpaceWithNumber(out, 8 - rowNum);
         if (teamColor.equals("WHITE")) {
             for (int i = 0; i < 8; i++) {
                 printLine(i, rowNum, row, out);
@@ -73,7 +73,7 @@ public class BoardIllustrator {
                 printLine(i, rowNum, row, out);
             }
         }
-        printSpaceWithNumber(out, rowNum);
+        printSpaceWithNumber(out, 8 - rowNum);
     }
 
     private static void printLine(int i, int rowNum, ChessPiece[] row, PrintStream out) {
