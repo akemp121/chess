@@ -12,10 +12,6 @@ public class ResponseException extends Exception {
         this.code = code;
     }
 
-    public String toJson() {
-        return new Gson().toJson(new ErrorResponse(getMessage(), code));
-    }
-
     public static ResponseException fromJson(String json) {
         var response = new Gson().fromJson(json, ErrorResponse.class);
         var status = response.status();
@@ -23,9 +19,6 @@ public class ResponseException extends Exception {
         return new ResponseException(status, message);
     }
 
-    public int code() {
-        return code;
-    }
 
 }
 
