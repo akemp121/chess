@@ -175,8 +175,8 @@ public class ChessClient {
                     - login <username> <password>
                     - register <username> <password> <email>
                     """;
-        }
-        return """
+        } else if (state == States.LOGGED_IN) {
+            return """
                 These are the commands you can perform:
                 - help
                 - logout
@@ -185,6 +185,20 @@ public class ChessClient {
                 - play_game <game_id> <white/black>
                 - observe_game <game_id>
                 """;
+        } else if (state == States.GAMEPLAY) {
+            return """
+                These are the commands you can perform:
+                - help
+                - redraw_board
+                - leave
+                - make_move <starting_position> <ending_position>
+                - resign
+                - highlight_moves <position>
+                """;
+        } else {
+            return "Error: No state selected";
+        }
+
     }
 }
 
