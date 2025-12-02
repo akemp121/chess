@@ -1,4 +1,23 @@
 package server.websocket;
 
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import org.eclipse.jetty.websocket.api.Session;
+
 public class WebSocketSessions {
+
+    public final ConcurrentHashMap<Integer, Set<Session>> sessions = new ConcurrentHashMap<>();
+
+    public void addSessionToGame(Integer gameID, Session session) {
+        sessions.get(gameID).add(session);
+    }
+
+    public void removeSessionFromGame(Integer gameID, Session session) {
+        sessions.get(gameID).remove(session);
+    }
+
+    public Set<Session> getSessionsForGame(Integer gameID) {
+        return sessions.get(gameID);
+    }
+
 }
