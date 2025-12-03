@@ -1,5 +1,6 @@
 package server.websocket;
 
+import chess.*;
 import com.google.gson.Gson;
 import dataaccess.sql.SQLAuthDAO;
 import dataaccess.sql.SQLGameDAO;
@@ -13,6 +14,7 @@ import model.*;
 import dataaccess.*;
 
 import java.io.IOException;
+import java.util.Collection;
 
 public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsCloseHandler {
 
@@ -50,6 +52,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             switch (command.getCommandType()) {
                 case CONNECT -> connect(command, wsMessageContext.session);
                 case LEAVE -> leave(command, wsMessageContext.session);
+                case MAKE_MOVE -> makeMove((MakeMoveCommand) command, wsMessageContext.session);
             }
         } catch (IOException ex) {
             ex.printStackTrace();
@@ -62,6 +65,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         var message = String.format("%s has joined the game!", ad.username());
         var notification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
         broadcast(command.getGameID(), session, notification);
+        // perhaps code that shows the board to the joiner?
     }
 
     private void leave(UserGameCommand command, Session session) throws IOException, DataAccessException {
@@ -70,6 +74,20 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         var message = String.format("%s has left the game!", ad.username());
         var notification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
         broadcast(command.getGameID(), session, notification);
+    }
+
+    private void makeMove(MakeMoveCommand command, Session session) throws IOException, DataAccessException {
+        GameData gd = gameDAO.getGame(command.getGameID());
+        ChessMove proposedMove = command.getMove();
+        try {
+            gd.game().makeMove(proposedMove);
+            gameDAO.updateGame(new GameData(gd.gameID(), gd.whiteUsername(), gd.blackUsername(), gd.gameName(), gd.game()));
+        } catch (InvalidMoveException e) {
+            var invalidMsg = "Invalid move!";
+            var notification = new ErrorMessage(ServerMessage.ServerMessageType.ERROR, invalidMsg);
+            sendMessage(notification, session);
+        }
+        // perhaps code that sends the new board to everyone in the session?
     }
 
     private void broadcast(Integer gameID, Session excludeSession, ServerMessage message) throws IOException {
