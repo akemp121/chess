@@ -1,17 +1,36 @@
 package server.websocket;
 
 import com.google.gson.Gson;
+import dataaccess.sql.SQLAuthDAO;
+import dataaccess.sql.SQLGameDAO;
+import dataaccess.sql.SQLUserDAO;
 import io.javalin.websocket.*;
 import org.eclipse.jetty.websocket.api.Session;
 import org.jetbrains.annotations.NotNull;
 import websocket.commands.*;
 import websocket.messages.*;
+import model.*;
+import dataaccess.*;
 
 import java.io.IOException;
 
 public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsCloseHandler {
 
     private final WebSocketSessions sessions = new WebSocketSessions();
+    private final AuthDAO authDAO;
+    private final GameDAO gameDAO;
+    private final UserDAO userDAO;
+
+    public WebSocketHandler() {
+        try {
+            this.authDAO = new SQLAuthDAO();
+            this.gameDAO = new SQLGameDAO();
+            this.userDAO = new SQLUserDAO();
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e);
+        }
+
+    }
 
     @Override
     public void handleClose(@NotNull WsCloseContext wsCloseContext) throws Exception {
@@ -30,23 +49,25 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             UserGameCommand command = new Gson().fromJson(wsMessageContext.message(), UserGameCommand.class);
             switch (command.getCommandType()) {
                 case CONNECT -> connect(command, wsMessageContext.session);
+                case LEAVE -> leave(command, wsMessageContext.session);
             }
         } catch (IOException ex) {
             ex.printStackTrace();
         }
     }
 
-    private void connect(UserGameCommand command, Session session) throws IOException {
+    private void connect(UserGameCommand command, Session session) throws IOException, DataAccessException {
         sessions.addSessionToGame(command.getGameID(), session);
-        // how do we know who the user is?
-        var message = "Someone has joined the game!";
+        AuthData ad = authDAO.getAuth(command.getAuthToken());
+        var message = String.format("%s has joined the game!", ad.username());
         var notification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
         broadcast(command.getGameID(), session, notification);
     }
 
-    private void leave(UserGameCommand command, Session session) throws IOException {
+    private void leave(UserGameCommand command, Session session) throws IOException, DataAccessException {
         sessions.removeSessionFromGame(command.getGameID(), session);
-        var message = "Someone has left the game!";
+        AuthData ad = authDAO.getAuth(command.getAuthToken());
+        var message = String.format("%s has left the game!", ad.username());
         var notification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
         broadcast(command.getGameID(), session, notification);
     }

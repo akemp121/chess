@@ -14,6 +14,7 @@ public class Server {
         // Register your endpoints and exception handlers here.
 
         Handler handler = new Handler();
+
         WebSocketHandler wsHandler = new WebSocketHandler();
 
         // clear
