@@ -8,29 +8,18 @@ import websocket.messages.ServerMessage;
 
 public class WebSocketSessions {
 
-    public final ConcurrentHashMap<Integer, Set<Session>> sessions = new ConcurrentHashMap<>();
+    public final ConcurrentHashMap<Integer, Set<Session>> sessionMap = new ConcurrentHashMap<>();
 
     public void addSessionToGame(Integer gameID, Session session) {
-        sessions.get(gameID).add(session);
+        sessionMap.get(gameID).add(session);
     }
 
     public void removeSessionFromGame(Integer gameID, Session session) {
-        sessions.get(gameID).remove(session);
+        sessionMap.get(gameID).remove(session);
     }
 
     public Set<Session> getSessionsForGame(Integer gameID) {
-        return sessions.get(gameID);
-    }
-
-    public void broadcast(Integer gameID, Session excludeSession, ServerMessage message) throws IOException {
-        String msg = message.toString();
-        for (Session s : sessions.get(gameID)) {
-            if (s.isOpen()) {
-                if (!s.equals(excludeSession)) {
-                    s.getRemote().sendString(msg);
-                }
-            }
-        }
+        return sessionMap.get(gameID);
     }
 
 }

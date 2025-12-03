@@ -2,6 +2,7 @@ package server;
 
 import io.javalin.*;
 import handlers.Handler;
+import server.websocket.WebSocketHandler;
 
 public class Server {
 
@@ -13,6 +14,7 @@ public class Server {
         // Register your endpoints and exception handlers here.
 
         Handler handler = new Handler();
+        WebSocketHandler wsHandler = new WebSocketHandler();
 
         // clear
         javalin.delete("/db", handler::clearHandler);
@@ -37,7 +39,9 @@ public class Server {
 
         // websocket
         javalin.ws("/ws", ws -> {
-            // stuff?
+            ws.onConnect(wsHandler);
+            ws.onClose(wsHandler);
+            ws.onMessage(wsHandler);
         });
 
     }
