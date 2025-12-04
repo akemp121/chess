@@ -107,36 +107,57 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 
     }
 
+    private String getContextMessage(ChessGame game) {
+        return switch (game.getState()) {
+            case RESIGNED -> "Error: A player has resigned from the game! No more moves allowed!";
+            case CHECKMATE -> "Error: Game is in checkmate!";
+            case STALEMATE -> "Error: Game is in stalemate!";
+            default -> null;
+        };
+    }
+
     private void makeMove(MakeMoveCommand command, Session session) throws IOException, DataAccessException {
 
-        // get the current game and proposed move
+        // Check if the current game is active. If not, then send an error message:
 
         GameData gd = gameDAO.getGame(command.getGameID());
-        ChessMove proposedMove = command.getMove();
+        if (gd.game().getState() != ChessGame.GameState.ACTIVE) {
 
-        // see if the move is valid
+            sendError(getContextMessage(gd.game()), session);
 
-        try {
+        } else {
 
-            // if it is, make the move and send the new board to everyone
+            ChessMove proposedMove = command.getMove();
 
-            gd.game().makeMove(proposedMove);
-            gameDAO.updateGame(new GameData(gd.gameID(), gd.whiteUsername(), gd.blackUsername(), gd.gameName(), gd.game()));
-            var message = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, gd.game());
-            broadcast(command.getGameID(), null, message);
+            // see if the move is valid
 
-            // ALSO BROADCAST WHAT MOVE WAS MADE TO USERS:
-            // ALSO CHECK IF ANYONE IS IN CHECK, CHECKMATE, OR STALEMATE (perhaps in another method?)
+            try {
 
-        } catch (InvalidMoveException e) {
+                // if it is, make the move and send the new board to everyone
 
-            // if not, tell only the user that made the move that it was wrong
+                gd.game().makeMove(proposedMove);
+                gameDAO.updateGame(new GameData(gd.gameID(), gd.whiteUsername(), gd.blackUsername(), gd.gameName(), gd.game()));
+                var message = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, gd.game());
+                broadcast(command.getGameID(), null, message);
 
-            var invalidMsg = "Error: Invalid move!";
-            var notification = new ErrorMessage(ServerMessage.ServerMessageType.ERROR, invalidMsg);
-            sendMessage(notification, session);
+                // ALSO BROADCAST WHAT MOVE WAS MADE TO USERS:
+                // ALSO CHECK IF ANYONE IS IN CHECK, CHECKMATE, OR STALEMATE (perhaps in another method?)
+
+            } catch (InvalidMoveException e) {
+
+                // if not, tell only the user that made the move that it was wrong
+
+                var invalidMsg = "Error: Invalid move!";
+                sendError(invalidMsg, session);
+
+            }
 
         }
+    }
+
+    private void sendError(String context, Session session) throws IOException {
+        var error = new ErrorMessage(ServerMessage.ServerMessageType.ERROR, context);
+        sendMessage(error, session);
     }
 
     private void resign(UserGameCommand command, Session session) throws IOException, DataAccessException {
