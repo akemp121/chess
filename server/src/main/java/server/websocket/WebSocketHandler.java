@@ -55,7 +55,10 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         try {
             UserGameCommand command = new Gson().fromJson(wsMessageContext.message(), UserGameCommand.class);
             switch (command.getCommandType()) {
-                case CONNECT -> connect(command, wsMessageContext.session);
+
+                // will this type casting work? (with connect and make move)
+
+                case CONNECT -> connect((UserConnectCommand) command, wsMessageContext.session);
                 case LEAVE -> leave(command, wsMessageContext.session);
                 case MAKE_MOVE -> makeMove((MakeMoveCommand) command, wsMessageContext.session);
                 case RESIGN -> resign(command, wsMessageContext.session);
@@ -66,13 +69,18 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 
     }
 
-    private void connect(UserGameCommand command, Session session) throws IOException, DataAccessException {
+    private void connect(UserConnectCommand command, Session session) throws IOException, DataAccessException {
 
         // add user to session and tell everyone
 
         sessions.addSessionToGame(command.getGameID(), session);
         AuthData ad = authDAO.getAuth(command.getAuthToken());
-        var message = String.format("%s has joined the game!", ad.username());
+        var message = "";
+        if (command.getConnectionType() == UserConnectCommand.ConnectionType.PLAYER) {
+            message = String.format("%s has joined the game as %s!", ad.username(), command.getTeamColor().toString());
+        } else {
+            message = String.format("%s is now observing the game!", ad.username());
+        }
         var notification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
         broadcast(command.getGameID(), session, notification);
 
