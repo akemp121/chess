@@ -58,6 +58,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                 case CONNECT -> connect(command, wsMessageContext.session);
                 case LEAVE -> leave(command, wsMessageContext.session);
                 case MAKE_MOVE -> makeMove((MakeMoveCommand) command, wsMessageContext.session);
+                case RESIGN -> resign(command, wsMessageContext.session);
             }
         } catch (IOException ex) {
             ex.printStackTrace();
