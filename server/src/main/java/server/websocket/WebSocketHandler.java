@@ -132,6 +132,16 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 
     private void resign(UserGameCommand command, Session session) throws IOException, DataAccessException {
 
+        // get the game, set its status to RESIGNED, then send a message to everyone
+
+        AuthData ad = authDAO.getAuth(command.getAuthToken());
+        GameData gd = gameDAO.getGame(command.getGameID());
+        gd.game().setState(ChessGame.GameState.RESIGNED);
+        gameDAO.updateGame(new GameData(gd.gameID(), gd.whiteUsername(), gd.blackUsername(), gd.gameName(), gd.game()));
+        var message = String.format("%s has resigned from the game!", ad.username());
+        var notification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
+        broadcast(command.getGameID(), session, notification);
+
     }
 
     private void broadcast(Integer gameID, Session excludeSession, ServerMessage message) throws IOException {
