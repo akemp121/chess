@@ -15,10 +15,12 @@ public class ChessGame {
 
     ChessBoard gameBoard = new ChessBoard();
     TeamColor turn;
+    GameState state;
 
     public ChessGame() {
         gameBoard.resetBoard();
         setTeamTurn(TeamColor.WHITE);
+        setState(GameState.ACTIVE);
     }
 
     @Override
@@ -66,6 +68,21 @@ public class ChessGame {
     public enum TeamColor {
         WHITE,
         BLACK
+    }
+
+    public enum GameState {
+        ACTIVE,
+        RESIGNED,
+        CHECKMATE,
+        STALEMATE
+    }
+
+    public GameState getState() {
+        return state;
+    }
+
+    public void setState(GameState state) {
+        this.state = state;
     }
 
     // for use by makeMove and validMoves

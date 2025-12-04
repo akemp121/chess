@@ -88,6 +88,9 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         // remove user from session and tell everyone else
 
         sessions.removeSessionFromGame(command.getGameID(), session);
+
+        // remove user from game in the db too:
+
         AuthData ad = authDAO.getAuth(command.getAuthToken());
         var message = String.format("%s has left the game!", ad.username());
         var notification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
@@ -113,11 +116,14 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             var message = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, gd.game());
             broadcast(command.getGameID(), null, message);
 
+            // ALSO BROADCAST WHAT MOVE WAS MADE TO USERS:
+            // ALSO CHECK IF ANYONE IS IN CHECK, CHECKMATE, OR STALEMATE (perhaps in another method?)
+
         } catch (InvalidMoveException e) {
 
             // if not, tell only the user that made the move that it was wrong
 
-            var invalidMsg = "Invalid move!";
+            var invalidMsg = "Error: Invalid move!";
             var notification = new ErrorMessage(ServerMessage.ServerMessageType.ERROR, invalidMsg);
             sendMessage(notification, session);
 
