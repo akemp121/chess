@@ -1,6 +1,5 @@
 package ui;
 
-import chess.ChessBoard;
 import chess.ChessGame;
 import chess.ChessMove;
 import chess.ChessPosition;
@@ -23,10 +22,12 @@ public class ChessClient implements GameHandler {
 
     private final ServerFacade server;
     private final WebSocketFacade ws;
+
     private States state = States.LOGGED_OUT;
     private String authToken;
     private ChessGame.TeamColor currentColor;
-    private Integer currentGame;
+    private Integer currentGameID;
+    private ChessGame currentGame;
     private ArrayList<ListGameData> gameList = new ArrayList<ListGameData>();
 
     public ChessClient(String serverUrl) throws ResponseException {
@@ -79,6 +80,7 @@ public class ChessClient implements GameHandler {
                 case "make_move" -> makeMove(params);
                 case "resign" -> resign();
                 case "redraw" -> redraw();
+                case "highlight_moves" -> highlightMoves(params);
                 case "quit" -> "quit";
                 default -> help();
             };
@@ -155,7 +157,7 @@ public class ChessClient implements GameHandler {
             server.joinGame(new JoinGameRequest(authToken, params[1].toUpperCase(), gameList.get(gameNumber - 1).gameID()));
             state = States.GAMEPLAY;
             setCurrentColor(params[1]);
-            currentGame = gameList.get(gameNumber - 1).gameID();
+            currentGameID = gameList.get(gameNumber - 1).gameID();
             ws.joinGame(authToken, gameList.get(gameNumber - 1).gameID(), currentColor);
             return String.format("Joined game %s as color %s!", gameList.get(gameNumber - 1).gameName(), params[1]);
         }
@@ -183,7 +185,7 @@ public class ChessClient implements GameHandler {
             }
             state = States.GAMEPLAY;
             setCurrentColor("WHITE");
-            currentGame = gameList.get(gameNumber - 1).gameID();
+            currentGameID = gameList.get(gameNumber - 1).gameID();
             ws.observeGame(authToken, gameList.get(gameNumber - 1).gameID());
             return String.format("Observing game %s!", gameList.get(gameNumber - 1).gameName());
         }
@@ -191,7 +193,7 @@ public class ChessClient implements GameHandler {
     }
 
     private String leave() {
-        ws.leaveGame(authToken, currentGame);
+        ws.leaveGame(authToken, currentGameID);
         state = States.LOGGED_IN;
         return "Left game!";
     }
@@ -203,12 +205,17 @@ public class ChessClient implements GameHandler {
             if (params[0].length() == 2 && params[1].length() == 2) {
                 ChessPosition startPos = getPosition(params[0]);
                 ChessPosition endPos = getPosition(params[1]);
-                ws.makeMove(authToken, currentGame, new ChessMove(startPos, endPos, null));
+                ws.makeMove(authToken, currentGameID, new ChessMove(startPos, endPos, null));
                 return "Move successful!";
             }
             throw new ResponseException(400, "Please put valid starting and ending positions! Eg: a3 b4");
         }
         throw new ResponseException(400, "Expected: <starting_position> <ending_position>");
+    }
+
+    private String highlightMoves(String... params) {
+        BoardIllustrator.higlightMoves(currentGame.getBoard(), currentColor, getPosition(params[0]));
+        return "";
     }
 
     private ChessPosition getPosition(String pos) {
@@ -219,12 +226,12 @@ public class ChessClient implements GameHandler {
     }
 
     private String resign() {
-        ws.resign(authToken, currentGame);
+        ws.resign(authToken, currentGameID);
         return "Resigned from game!";
     }
 
     private String redraw() {
-        ws.redraw(authToken, currentGame);
+        ws.redraw(authToken, currentGameID);
         return "";
     }
 
@@ -251,9 +258,9 @@ public class ChessClient implements GameHandler {
             return """
                 These are the commands you can perform:
                 - help
-                - redraw_board
+                - redraw
                 - leave
-                - make_move <starting_position> <ending_position>
+                - make_move <starting_position> <ending_position> <promotion_piece>
                 - resign
                 - highlight_moves <position>
                 """;
@@ -267,6 +274,7 @@ public class ChessClient implements GameHandler {
     public void updateGame(ChessGame game) {
         System.out.println();
         BoardIllustrator.illustrate(game.getBoard(), currentColor);
+        currentGame = game;
     }
 
     @Override
