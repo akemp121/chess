@@ -56,12 +56,17 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             UserGameCommand command = new Gson().fromJson(wsMessageContext.message(), UserGameCommand.class);
             switch (command.getCommandType()) {
 
-                // will this type casting work? (with connect and make move)
+                case CONNECT:
+                    UserConnectCommand userConnectCommand = new Gson().fromJson(wsMessageContext.message(), UserConnectCommand.class);
+                    connect(userConnectCommand, wsMessageContext.session);
+                case LEAVE:
+                    leave(command, wsMessageContext.session);
+                case MAKE_MOVE:
+                    MakeMoveCommand makeMoveCommand = new Gson().fromJson(wsMessageContext.message(), MakeMoveCommand.class);
+                    makeMove(makeMoveCommand, wsMessageContext.session);
+                case RESIGN:
+                    resign(command, wsMessageContext.session);
 
-                case CONNECT -> connect((UserConnectCommand) command, wsMessageContext.session);
-                case LEAVE -> leave(command, wsMessageContext.session);
-                case MAKE_MOVE -> makeMove((MakeMoveCommand) command, wsMessageContext.session);
-                case RESIGN -> resign(command, wsMessageContext.session);
             }
         } catch (IOException ex) {
             ex.printStackTrace();
