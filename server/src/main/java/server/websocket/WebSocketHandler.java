@@ -96,10 +96,24 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         // remove user from session and tell everyone else
 
         sessions.removeSessionFromGame(command.getGameID(), session);
+        AuthData ad = authDAO.getAuth(command.getAuthToken());
+        GameData gd = gameDAO.getGame(command.getGameID());
 
         // remove user from game in the db too:
 
-        AuthData ad = authDAO.getAuth(command.getAuthToken());
+
+        if (ad.username().equals(gd.whiteUsername())) {
+
+            // if the user was white:
+
+            gameDAO.updateGame(new GameData(gd.gameID(), null, gd.blackUsername(), gd.gameName(), gd.game()));
+        } else {
+
+            // if the user was black:
+
+            gameDAO.updateGame(new GameData(gd.gameID(), gd.whiteUsername(), null, gd.gameName(), gd.game()));
+        }
+
         var message = String.format("%s has left the game!", ad.username());
         broadcastNoti(command.getGameID(), session, message);
 
