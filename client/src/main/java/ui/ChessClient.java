@@ -2,6 +2,8 @@ package ui;
 
 import chess.ChessBoard;
 import chess.ChessGame;
+import chess.ChessMove;
+import chess.ChessPosition;
 import exception.ResponseException;
 import server.ServerFacade;
 import requests.*;
@@ -29,7 +31,7 @@ public class ChessClient implements GameHandler {
 
     public ChessClient(String serverUrl) throws ResponseException {
         server = new ServerFacade(serverUrl);
-        ws = new WebSocketFacade(serverUrl);
+        ws = new WebSocketFacade(serverUrl, this);
     }
 
     public void run() {
@@ -74,6 +76,8 @@ public class ChessClient implements GameHandler {
                 case "play_game" -> playGame(params);
                 case "observe_game" -> observeGame(params);
                 case "leave" -> leave();
+                case "make_move" -> makeMove(params);
+                case "resign" -> resign();
                 case "quit" -> "quit";
                 default -> help();
             };
@@ -189,6 +193,33 @@ public class ChessClient implements GameHandler {
         ws.leaveGame(authToken, currentGame);
         state = States.LOGGED_IN;
         return "Left game!";
+    }
+
+    // make sure to add promotion piece... eventually!
+
+    private String makeMove(String... params) throws ResponseException {
+        if (params.length == 2) {
+            if (params[0].length() == 2 && params[1].length() == 2) {
+                ChessPosition startPos = getPosition(params[0]);
+                ChessPosition endPos = getPosition(params[1]);
+                ws.makeMove(authToken, currentGame, new ChessMove(startPos, endPos, null));
+                return "Move successful!";
+            }
+            throw new ResponseException(400, "Please put valid starting and ending positions! Eg: a3 b4");
+        }
+        throw new ResponseException(400, "Expected: <starting_position> <ending_position>");
+    }
+
+    private ChessPosition getPosition(String pos) {
+        char col = pos.charAt(0);
+        int colIndex = col - 'a';
+        int rowIndex = Integer.parseInt(pos.substring(1)) - 1;
+        return new ChessPosition(rowIndex, colIndex);
+    }
+
+    private String resign() {
+        ws.resign(authToken, currentGame);
+        return "Resigned from game!";
     }
 
     private String help() {

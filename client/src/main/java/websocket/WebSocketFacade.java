@@ -20,10 +20,11 @@ public class WebSocketFacade extends Endpoint implements MessageHandler {
     Session session;
     GameHandler gameHandler;
 
-    public WebSocketFacade(String url) {
+    public WebSocketFacade(String url, GameHandler gameHandler) {
         try {
             url = url.replace("http", "ws");
             URI socketURI = new URI(url + "/ws");
+            this.gameHandler = gameHandler;
 
             WebSocketContainer container = ContainerProvider.getWebSocketContainer();
             this.session = container.connectToServer(this, socketURI);
@@ -31,20 +32,24 @@ public class WebSocketFacade extends Endpoint implements MessageHandler {
             this.session.addMessageHandler(new MessageHandler.Whole<String>() {
                 @Override
                 public void onMessage(String message) {
-                    ServerMessage serverMessage = new Gson().fromJson(message, ServerMessage.class);
-                    switch (serverMessage.getServerMessageType()) {
-                        case NOTIFICATION:
-                            NotificationMessage notificationMessage = new Gson().fromJson(message, NotificationMessage.class);
-                            gameHandler.printMessage(notificationMessage.getMessage());
-                            break;
-                        case ERROR:
-                            ErrorMessage errorMessage = new Gson().fromJson(message, ErrorMessage.class);
-                            gameHandler.printMessage(errorMessage.getErrorMessage());
-                            break;
-                        case LOAD_GAME:
-                            LoadGameMessage loadGameMessage = new Gson().fromJson(message, LoadGameMessage.class);
-                            gameHandler.updateGame(loadGameMessage.getGame());
-                            break;
+                    try {
+                        ServerMessage serverMessage = new Gson().fromJson(message, ServerMessage.class);
+                        switch (serverMessage.getServerMessageType()) {
+                            case NOTIFICATION:
+                                NotificationMessage notificationMessage = new Gson().fromJson(message, NotificationMessage.class);
+                                gameHandler.printMessage(notificationMessage.getMessage());
+                                break;
+                            case ERROR:
+                                ErrorMessage errorMessage = new Gson().fromJson(message, ErrorMessage.class);
+                                gameHandler.printMessage(errorMessage.getErrorMessage());
+                                break;
+                            case LOAD_GAME:
+                                LoadGameMessage loadGameMessage = new Gson().fromJson(message, LoadGameMessage.class);
+                                gameHandler.updateGame(loadGameMessage.getGame());
+                                break;
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
                     }
                 }
             });

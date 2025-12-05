@@ -15,12 +15,11 @@ public class ChessGame {
 
     ChessBoard gameBoard = new ChessBoard();
     TeamColor turn;
-    GameState state;
+    GameState state = GameState.ACTIVE;
 
     public ChessGame() {
         gameBoard.resetBoard();
         setTeamTurn(TeamColor.WHITE);
-        setState(GameState.ACTIVE);
     }
 
     @Override
@@ -174,25 +173,27 @@ public class ChessGame {
     // if the move isn't in valid moves, then throw the exception
     public void makeMove(ChessMove move) throws InvalidMoveException {
         // check if move is valid, if not, then throw the INVALID
-        ChessPosition startPosition = move.getStartPosition();
-        if (gameBoard.getPiece(startPosition) != null) {
-            Collection<ChessMove> moves = validMoves(startPosition);
-            boolean isValid = false;
-            for (ChessMove m : moves ) {
-                if (m.equals(move)){
-                    isValid = true;
-                    break;
+        if (move != null) {
+            ChessPosition startPosition = move.getStartPosition();
+            if (gameBoard.getPiece(startPosition) != null) {
+                Collection<ChessMove> moves = validMoves(startPosition);
+                boolean isValid = false;
+                for (ChessMove m : moves ) {
+                    if (m.equals(move)){
+                        isValid = true;
+                        break;
+                    }
                 }
-            }
-            if (gameBoard.getPiece(startPosition).getTeamColor() == turn && isValid) {
-                makeMoveGeneric(move, gameBoard);
-                changeTeamTurn();
+                if (gameBoard.getPiece(startPosition).getTeamColor() == turn && isValid) {
+                    makeMoveGeneric(move, gameBoard);
+                    changeTeamTurn();
+                } else {
+                    throw new InvalidMoveException();
+                }
             } else {
                 throw new InvalidMoveException();
             }
-        } else {
-            throw new InvalidMoveException();
-        }
+        } throw new InvalidMoveException();
     }
 
     /**

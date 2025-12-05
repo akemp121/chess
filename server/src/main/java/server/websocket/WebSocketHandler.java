@@ -253,7 +253,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 
         // send a message to everyone except the excluded session
 
-        String msg = message.toString();
+        String msg = new Gson().toJson(message);
         for (Session s : sessions.sessionMap.get(gameID)) {
             if (s.isOpen()) {
                 if (!s.equals(excludeSession)) {
@@ -267,7 +267,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 
         // send a message to a specific session
 
-        String msg = message.toString();
+        String msg = new Gson().toJson(message);
         if (session.isOpen()) {
             session.getRemote().sendString(msg);
         }
