@@ -81,8 +81,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         } else {
             message = String.format("%s is now observing the game!", ad.username());
         }
-        var notification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
-        broadcast(command.getGameID(), session, notification);
+        broadcastNoti(command.getGameID(), session, message);
 
         // send the board to the user
 
@@ -102,8 +101,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 
         AuthData ad = authDAO.getAuth(command.getAuthToken());
         var message = String.format("%s has left the game!", ad.username());
-        var notification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
-        broadcast(command.getGameID(), session, notification);
+        broadcastNoti(command.getGameID(), session, message);
 
     }
 
@@ -116,11 +114,64 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         };
     }
 
+    private String moveToString(ChessMove move, String userName) {
+
+        // Gets the chess move and makes it a lil more readable:
+
+        String[] letters = {"a", "b", "c", "d", "e", "f", "g", "h"};
+        String sCol = letters[move.getStartPosition().getColumn()];
+        String eCol = letters[move.getEndPosition().getColumn()];
+        Integer sRow = move.getStartPosition().getRow();
+        Integer eRow = move.getEndPosition().getRow();
+        return String.format("Player %s moved from %s%d to %s%d", userName, sCol, sRow, eCol, eRow);
+
+    }
+
+    private void gameCheck(ChessGame game, Integer gameID) throws IOException {
+
+        // Check if the state of the game has changed
+        // If it has, then we need to update the state and notify EVERYONE
+
+        if (game.isInCheckmate(ChessGame.TeamColor.WHITE)) {
+            var context = "White is in checkmate!";
+            broadcastNoti(gameID, null, context);
+            game.setState(ChessGame.GameState.CHECKMATE);
+        } else if (game.isInCheckmate(ChessGame.TeamColor.BLACK)) {
+            var context = "Black is in checkmate!";
+            broadcastNoti(gameID, null, context);
+            game.setState(ChessGame.GameState.CHECKMATE);
+        } else if (game.isInStalemate(ChessGame.TeamColor.WHITE)) {
+            var context = "White is in stalemate!";
+            broadcastNoti(gameID, null, context);
+            game.setState(ChessGame.GameState.STALEMATE);
+        } else if (game.isInStalemate(ChessGame.TeamColor.BLACK)) {
+            var context = "Black is in stalemate!";
+            broadcastNoti(gameID, null, context);
+            game.setState(ChessGame.GameState.STALEMATE);
+        } else if (game.isInCheck(ChessGame.TeamColor.WHITE)) {
+            var context = "White is in check!";
+            broadcastNoti(gameID, null, context);
+        } else if (game.isInCheck(ChessGame.TeamColor.BLACK)) {
+            var context = "Black is in check!";
+            broadcastNoti(gameID, null, context);
+        }
+
+    }
+
+    private void broadcastNoti(Integer gameID, Session excludeSession, String message) throws IOException {
+
+        var notification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
+        broadcast(gameID, excludeSession, notification);
+
+    }
+
     private void makeMove(MakeMoveCommand command, Session session) throws IOException, DataAccessException {
 
         // Check if the current game is active. If not, then send an error message:
 
         GameData gd = gameDAO.getGame(command.getGameID());
+        AuthData ad = authDAO.getAuth(command.getAuthToken());
+
         if (gd.game().getState() != ChessGame.GameState.ACTIVE) {
 
             sendError(getContextMessage(gd.game()), session);
@@ -137,11 +188,17 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 
                 gd.game().makeMove(proposedMove);
                 gameDAO.updateGame(new GameData(gd.gameID(), gd.whiteUsername(), gd.blackUsername(), gd.gameName(), gd.game()));
-                var message = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, gd.game());
-                broadcast(command.getGameID(), null, message);
+                var newBoard = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, gd.game());
+                broadcast(command.getGameID(), null, newBoard);
 
                 // ALSO BROADCAST WHAT MOVE WAS MADE TO USERS:
+
+                var moveMade = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, moveToString(proposedMove, ad.username()));
+                broadcast(command.getGameID(), session, moveMade);
+
                 // ALSO CHECK IF ANYONE IS IN CHECK, CHECKMATE, OR STALEMATE (perhaps in another method?)
+
+                gameCheck(gd.game(), command.getGameID());
 
             } catch (InvalidMoveException e) {
 
@@ -169,8 +226,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         gd.game().setState(ChessGame.GameState.RESIGNED);
         gameDAO.updateGame(new GameData(gd.gameID(), gd.whiteUsername(), gd.blackUsername(), gd.gameName(), gd.game()));
         var message = String.format("%s has resigned from the game!", ad.username());
-        var notification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
-        broadcast(command.getGameID(), session, notification);
+        broadcastNoti(command.getGameID(), session, message);
 
     }
 
