@@ -59,13 +59,17 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                 case CONNECT:
                     UserConnectCommand userConnectCommand = new Gson().fromJson(wsMessageContext.message(), UserConnectCommand.class);
                     connect(userConnectCommand, wsMessageContext.session);
+                    break;
                 case LEAVE:
                     leave(command, wsMessageContext.session);
+                    break;
                 case MAKE_MOVE:
                     MakeMoveCommand makeMoveCommand = new Gson().fromJson(wsMessageContext.message(), MakeMoveCommand.class);
                     makeMove(makeMoveCommand, wsMessageContext.session);
+                    break;
                 case RESIGN:
                     resign(command, wsMessageContext.session);
+                    break;
 
             }
         } catch (IOException ex) {

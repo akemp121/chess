@@ -193,7 +193,9 @@ public class ChessGame {
             } else {
                 throw new InvalidMoveException();
             }
-        } throw new InvalidMoveException();
+        } else {
+            throw new InvalidMoveException();
+        }
     }
 
     /**

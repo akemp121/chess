@@ -212,8 +212,8 @@ public class ChessClient implements GameHandler {
 
     private ChessPosition getPosition(String pos) {
         char col = pos.charAt(0);
-        int colIndex = col - 'a';
-        int rowIndex = Integer.parseInt(pos.substring(1)) - 1;
+        int colIndex = (col - 'a') + 1;
+        int rowIndex = Integer.parseInt(pos.substring(1));
         return new ChessPosition(rowIndex, colIndex);
     }
 
@@ -259,6 +259,7 @@ public class ChessClient implements GameHandler {
 
     @Override
     public void updateGame(ChessGame game) {
+        System.out.println();
         BoardIllustrator.illustrate(game.getBoard(), currentColor);
     }
 
