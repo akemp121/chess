@@ -9,7 +9,7 @@ import chess.ChessPiece.PieceType;
 
 public class BoardIllustrator {
 
-    public static void illustrate(ChessBoard board, String teamColor) {
+    public static void illustrate(ChessBoard board, ChessGame.TeamColor teamColor) {
         // depending on the team color, direction of loop will change
         // loop through each row
             // loop through each column
@@ -21,7 +21,7 @@ public class BoardIllustrator {
         printTopBottom(out, teamColor);
         out.print("\n");
         // print board
-        if (teamColor.equals("WHITE")) {
+        if (teamColor.toString().equals("WHITE")) {
             for (int i = 0; i < 8; i++) {
                 printRow(out, teamColor, squares[i], i);
                 out.print(SET_BG_COLOR_BLACK);
@@ -42,12 +42,12 @@ public class BoardIllustrator {
         out.print("\n");
     }
 
-    private static void printTopBottom(PrintStream out, String teamColor) {
+    private static void printTopBottom(PrintStream out, ChessGame.TeamColor teamColor) {
         String[] key = {"a", "b", "c", "d", "e", "f", "g", "h"};
         out.print(SET_BG_COLOR_LIGHT_GREY);
         out.print(SET_TEXT_COLOR_BLACK);
         printSpace(out);
-        if (teamColor.equals("WHITE")) {
+        if (teamColor.toString().equals("WHITE")) {
             for (int i = 0; i < 8; i++) {
                 out.print(key[i]);
                 out.print(" ");
@@ -62,9 +62,9 @@ public class BoardIllustrator {
         out.print(SET_BG_COLOR_BLACK);
     }
 
-    private static void printRow(PrintStream out, String teamColor, ChessPiece[] row, int rowNum) {
+    private static void printRow(PrintStream out, ChessGame.TeamColor teamColor, ChessPiece[] row, int rowNum) {
         printSpaceWithNumber(out, 8 - rowNum);
-        if (teamColor.equals("WHITE")) {
+        if (teamColor.toString().equals("WHITE")) {
             for (int i = 0; i < 8; i++) {
                 printLine(i, rowNum, row, out);
             }

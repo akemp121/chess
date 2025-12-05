@@ -1,6 +1,7 @@
 package ui;
 
 import chess.ChessBoard;
+import chess.ChessGame;
 import exception.ResponseException;
 import server.ServerFacade;
 import requests.*;
@@ -9,19 +10,26 @@ import responses.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import model.*;
+import websocket.GameHandler;
+import websocket.WebSocketFacade;
+
 import java.util.Scanner;
 
 import static ui.EscapeSequences.*;
 
-public class ChessClient {
+public class ChessClient implements GameHandler {
 
     private final ServerFacade server;
+    private final WebSocketFacade ws;
     private States state = States.LOGGED_OUT;
     private String authToken;
+    private ChessGame.TeamColor currentColor;
+    private Integer currentGame;
     private ArrayList<ListGameData> gameList = new ArrayList<ListGameData>();
 
     public ChessClient(String serverUrl) throws ResponseException {
         server = new ServerFacade(serverUrl);
+        ws = new WebSocketFacade(serverUrl);
     }
 
     public void run() {
@@ -65,6 +73,7 @@ public class ChessClient {
                 case "list_games" -> listGames();
                 case "play_game" -> playGame(params);
                 case "observe_game" -> observeGame(params);
+                case "leave" -> leave();
                 case "quit" -> "quit";
                 default -> help();
             };
@@ -139,12 +148,21 @@ public class ChessClient {
                 throw new ResponseException(400, "Game id must be a valid integer!");
             }
             server.joinGame(new JoinGameRequest(authToken, params[1].toUpperCase(), gameList.get(gameNumber - 1).gameID()));
-            ChessBoard newBoard = new ChessBoard();
-            newBoard.resetBoard();
-            BoardIllustrator.illustrate(newBoard, params[1].toUpperCase());
+            state = States.GAMEPLAY;
+            setCurrentColor(params[1]);
+            currentGame = gameList.get(gameNumber - 1).gameID();
+            ws.joinGame(authToken, gameList.get(gameNumber - 1).gameID(), currentColor);
             return String.format("Joined game %s as color %s!", gameList.get(gameNumber - 1).gameName(), params[1]);
         }
         throw new ResponseException(400, "Expected: <game_id> <white/black>");
+    }
+
+    private void setCurrentColor(String color) {
+        if (color.equalsIgnoreCase("black")) {
+            this.currentColor = ChessGame.TeamColor.BLACK;
+        } else {
+            this.currentColor = ChessGame.TeamColor.WHITE;
+        }
     }
 
     private String observeGame(String... params) throws ResponseException {
@@ -158,12 +176,19 @@ public class ChessClient {
             } catch (Exception e) {
                 throw new ResponseException(400, "Game id must be a valid integer!");
             }
-            ChessBoard newBoard = new ChessBoard();
-            newBoard.resetBoard();
-            BoardIllustrator.illustrate(newBoard, "WHITE");
+            state = States.GAMEPLAY;
+            setCurrentColor("WHITE");
+            currentGame = gameList.get(gameNumber - 1).gameID();
+            ws.observeGame(authToken, gameList.get(gameNumber - 1).gameID());
             return String.format("Observing game %s!", gameList.get(gameNumber - 1).gameName());
         }
         throw new ResponseException(400, "Expected: <game_id>");
+    }
+
+    private String leave() {
+        ws.leaveGame(authToken, currentGame);
+        state = States.LOGGED_IN;
+        return "Left game!";
     }
 
     private String help() {
@@ -199,6 +224,17 @@ public class ChessClient {
             return "Error: No state selected";
         }
 
+    }
+
+    @Override
+    public void updateGame(ChessGame game) {
+        BoardIllustrator.illustrate(game.getBoard(), currentColor);
+    }
+
+    @Override
+    public void printMessage(String message) {
+        System.out.println(SET_TEXT_COLOR_GREEN + message);
+        printPrompt();
     }
 }
 

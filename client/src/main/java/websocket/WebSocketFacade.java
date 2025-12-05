@@ -20,11 +20,10 @@ public class WebSocketFacade extends Endpoint implements MessageHandler {
     Session session;
     GameHandler gameHandler;
 
-    public WebSocketFacade(String url, GameHandler gameHandler) {
+    public WebSocketFacade(String url) {
         try {
             url = url.replace("http", "ws");
             URI socketURI = new URI(url + "/ws");
-            this.gameHandler = gameHandler;
 
             WebSocketContainer container = ContainerProvider.getWebSocketContainer();
             this.session = container.connectToServer(this, socketURI);
