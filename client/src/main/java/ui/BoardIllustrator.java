@@ -21,15 +21,15 @@ public class BoardIllustrator {
         printTopBottom(out, teamColor);
         out.print("\n");
         // print board
-        if (teamColor.toString().equals("WHITE")) {
+        if (teamColor.toString().equals("BLACK")) {
             for (int i = 0; i < 8; i++) {
-                printRow(out, teamColor, squares[i], i);
+                printRow(out, teamColor, squares[i], 7 - i);
                 out.print(SET_BG_COLOR_BLACK);
                 out.print("\n");
             }
         } else {
             for (int i = 7; i >= 0; i--) {
-                printRow(out, teamColor, squares[i], i);
+                printRow(out, teamColor, squares[i], 7 - i);
                 out.print(SET_BG_COLOR_BLACK);
                 out.print("\n");
             }
