@@ -114,4 +114,14 @@ public class WebSocketFacade extends Endpoint implements MessageHandler {
         }
     }
 
+    public void redraw(String authToken, Integer gameID) {
+        try {
+            UserGameCommand command = new UserGameCommand(UserGameCommand.CommandType.REDRAW,
+                    authToken, gameID);
+            this.session.getBasicRemote().sendText(new Gson().toJson(command));
+        } catch (IOException ex) {
+            throw new RuntimeException(ex.getMessage());
+        }
+    }
+
 }

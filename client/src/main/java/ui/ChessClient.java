@@ -78,6 +78,7 @@ public class ChessClient implements GameHandler {
                 case "leave" -> leave();
                 case "make_move" -> makeMove(params);
                 case "resign" -> resign();
+                case "redraw" -> redraw();
                 case "quit" -> "quit";
                 default -> help();
             };
@@ -220,6 +221,11 @@ public class ChessClient implements GameHandler {
     private String resign() {
         ws.resign(authToken, currentGame);
         return "Resigned from game!";
+    }
+
+    private String redraw() {
+        ws.redraw(authToken, currentGame);
+        return "";
     }
 
     private String help() {

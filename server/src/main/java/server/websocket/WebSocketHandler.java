@@ -70,6 +70,9 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                 case RESIGN:
                     resign(command, wsMessageContext.session);
                     break;
+                case REDRAW:
+                    updateBoard(command, wsMessageContext.session);
+                    break;
 
             }
         } catch (IOException ex) {
@@ -94,9 +97,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 
         // send the board to the user
 
-        GameData gd = gameDAO.getGame(command.getGameID());
-        var boardMessage = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, gd.game());
-        sendMessage(boardMessage, session);
+        updateBoard(command, session);
 
     }
 
@@ -238,6 +239,14 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
     private void sendError(String context, Session session) throws IOException {
         var error = new ErrorMessage(ServerMessage.ServerMessageType.ERROR, context);
         sendMessage(error, session);
+    }
+
+    private void updateBoard(UserGameCommand command, Session session) throws IOException, DataAccessException {
+        if (command.getGameID() != null) {
+            GameData gd = gameDAO.getGame(command.getGameID());
+            var boardMessage = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, gd.game());
+            sendMessage(boardMessage, session);
+        }
     }
 
     private void resign(UserGameCommand command, Session session) throws IOException, DataAccessException {
