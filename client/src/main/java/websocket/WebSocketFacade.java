@@ -1,5 +1,7 @@
 package websocket;
 
+import chess.ChessGame;
+import chess.ChessMove;
 import com.google.gson.Gson;
 import com.sun.nio.sctp.Notification;
 import jakarta.websocket.*;
@@ -13,7 +15,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-public class WebSocketFacade extends Endpoint {
+public class WebSocketFacade extends Endpoint implements MessageHandler {
 
     Session session;
     GameHandler gameHandler;
@@ -58,6 +60,54 @@ public class WebSocketFacade extends Endpoint {
 
     }
 
+    public void joinGame(String authToken, Integer gameID, ChessGame.TeamColor color) {
+        try {
+            UserConnectCommand command = new UserConnectCommand(UserGameCommand.CommandType.CONNECT,
+                    authToken, gameID, UserConnectCommand.ConnectionType.PLAYER, color);
+            this.session.getBasicRemote().sendText(new Gson().toJson(command));
+        } catch (IOException ex) {
+            throw new RuntimeException(ex.getMessage());
+        }
+    }
 
+    public void observeGame(String authToken, Integer gameID) {
+        try {
+            UserConnectCommand command = new UserConnectCommand(UserGameCommand.CommandType.CONNECT,
+                    authToken, gameID, UserConnectCommand.ConnectionType.OBSERVER, null);
+            this.session.getBasicRemote().sendText(new Gson().toJson(command));
+        } catch (IOException ex) {
+            throw new RuntimeException(ex.getMessage());
+        }
+    }
+
+    public void leaveGame(String authToken, Integer gameID) {
+        try {
+            UserGameCommand command = new UserGameCommand(UserGameCommand.CommandType.LEAVE,
+                    authToken, gameID);
+            this.session.getBasicRemote().sendText(new Gson().toJson(command));
+        } catch (IOException ex) {
+            throw new RuntimeException(ex.getMessage());
+        }
+    }
+
+    public void makeMove(String authToken, Integer gameID, ChessMove move) {
+        try {
+            MakeMoveCommand command = new MakeMoveCommand(UserGameCommand.CommandType.MAKE_MOVE,
+                    authToken, gameID, move);
+            this.session.getBasicRemote().sendText(new Gson().toJson(command));
+        } catch (IOException ex) {
+            throw new RuntimeException(ex.getMessage());
+        }
+    }
+
+    public void resign(String authToken, Integer gameID) {
+        try {
+            UserGameCommand command = new UserGameCommand(UserGameCommand.CommandType.RESIGN,
+                    authToken, gameID);
+            this.session.getBasicRemote().sendText(new Gson().toJson(command));
+        } catch (IOException ex) {
+            throw new RuntimeException(ex.getMessage());
+        }
+    }
 
 }
