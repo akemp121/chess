@@ -19,8 +19,4 @@ public class WebSocketSessions {
         sessionMap.get(gameID).remove(session);
     }
 
-    public Set<Session> getSessionsForGame(Integer gameID) {
-        return sessionMap.get(gameID);
-    }
-
 }
