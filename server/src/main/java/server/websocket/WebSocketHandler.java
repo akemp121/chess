@@ -87,17 +87,23 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 
         sessions.addSessionToGame(command.getGameID(), session);
         AuthData ad = authDAO.getAuth(command.getAuthToken());
-        var message = "";
-        if (command.getConnectionType() == UserConnectCommand.ConnectionType.PLAYER) {
-            message = String.format("%s has joined the game as %s!", ad.username(), command.getTeamColor().toString());
+        if (ad != null) {
+            var message = "";
+            if (command.getConnectionType() == UserConnectCommand.ConnectionType.PLAYER) {
+                message = String.format("%s has joined the game as %s!", ad.username(), command.getTeamColor().toString());
+            } else {
+                message = String.format("%s is now observing the game!", ad.username());
+            }
+            broadcastNoti(command.getGameID(), session, message);
+
+            // send the board to the user
+
+            updateBoard(command, session);
         } else {
-            message = String.format("%s is now observing the game!", ad.username());
+            var invalidMsg = "Error: Invalid authToken!";
+            sendError(invalidMsg, session);
         }
-        broadcastNoti(command.getGameID(), session, message);
 
-        // send the board to the user
-
-        updateBoard(command, session);
 
     }
 
@@ -143,10 +149,10 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         // Gets the chess move and makes it a lil more readable:
 
         String[] letters = {"a", "b", "c", "d", "e", "f", "g", "h"};
-        String sCol = letters[move.getStartPosition().getColumn()];
-        String eCol = letters[move.getEndPosition().getColumn()];
-        Integer sRow = move.getStartPosition().getRow();
-        Integer eRow = move.getEndPosition().getRow();
+        String sCol = letters[move.getStartPosition().getColumn() - 1];
+        String eCol = letters[move.getEndPosition().getColumn() - 1];
+        Integer sRow = move.getStartPosition().getRow() - 1;
+        Integer eRow = move.getEndPosition().getRow() - 1;
         return String.format("Player %s moved from %s%d to %s%d", userName, sCol, sRow, eCol, eRow);
 
     }
@@ -196,43 +202,48 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         GameData gd = gameDAO.getGame(command.getGameID());
         AuthData ad = authDAO.getAuth(command.getAuthToken());
 
-        if (gd.game().getState() != ChessGame.GameState.ACTIVE) {
+        if (gd != null && ad != null) {
 
-            sendError(getContextMessage(gd.game()), session);
+            if (gd.game().getState() != ChessGame.GameState.ACTIVE) {
 
-        } else {
+                sendError(getContextMessage(gd.game()), session);
 
-            ChessMove proposedMove = command.getMove();
+            } else {
 
-            // see if the move is valid
+                ChessMove proposedMove = command.getMove();
 
-            try {
+                // see if the move is valid
 
-                // if it is, make the move and send the new board to everyone
+                try {
 
-                gd.game().makeMove(proposedMove);
-                gameDAO.updateGame(new GameData(gd.gameID(), gd.whiteUsername(), gd.blackUsername(), gd.gameName(), gd.game()));
-                var newBoard = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, gd.game());
-                broadcast(command.getGameID(), null, newBoard);
+                    // if it is, make the move and send the new board to everyone
 
-                // ALSO BROADCAST WHAT MOVE WAS MADE TO USERS:
+                    gd.game().makeMove(proposedMove);
+                    gameDAO.updateGame(new GameData(gd.gameID(), gd.whiteUsername(), gd.blackUsername(), gd.gameName(), gd.game()));
+                    var newBoard = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, gd.game());
+                    broadcast(command.getGameID(), null, newBoard);
 
-                var moveMade = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, moveToString(proposedMove, ad.username()));
-                broadcast(command.getGameID(), session, moveMade);
+                    // ALSO BROADCAST WHAT MOVE WAS MADE TO USERS:
 
-                // ALSO CHECK IF ANYONE IS IN CHECK, CHECKMATE, OR STALEMATE (perhaps in another method?)
+                    var moveMade = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, moveToString(proposedMove, ad.username()));
+                    broadcast(command.getGameID(), session, moveMade);
 
-                gameCheck(gd.game(), command.getGameID());
+                    // ALSO CHECK IF ANYONE IS IN CHECK, CHECKMATE, OR STALEMATE (perhaps in another method?)
 
-            } catch (InvalidMoveException e) {
+                    gameCheck(gd.game(), command.getGameID());
 
-                // if not, tell only the user that made the move that it was wrong
+                } catch (InvalidMoveException e) {
 
-                var invalidMsg = "Error: Invalid move!";
-                sendError(invalidMsg, session);
+                    // if not, tell only the user that made the move that it was wrong
 
+                    var invalidMsg = "Error: Invalid move!";
+                    sendError(invalidMsg, session);
+
+                }
             }
-
+        } else {
+            var invalidMsg = "Error: authToken or game not found!";
+            sendError(invalidMsg, session);
         }
     }
 
@@ -244,8 +255,13 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
     private void updateBoard(UserGameCommand command, Session session) throws IOException, DataAccessException {
         if (command.getGameID() != null) {
             GameData gd = gameDAO.getGame(command.getGameID());
-            var boardMessage = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, gd.game());
-            sendMessage(boardMessage, session);
+            if (gd != null) {
+                var boardMessage = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, gd.game());
+                sendMessage(boardMessage, session);
+            } else {
+                var invalidMsg = "Error: Game not found!";
+                sendError(invalidMsg, session);
+            }
         }
     }
 

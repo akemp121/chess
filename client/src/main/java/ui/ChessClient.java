@@ -97,7 +97,7 @@ public class ChessClient implements GameHandler {
             state = States.LOGGED_IN;
             return String.format("Registered and logged in as %s!", params[0]);
         }
-        throw new ResponseException(400, "Expected: <username> <password> <email>");
+        throw new ResponseException(400, "Error, expected: <username> <password> <email>");
     }
 
     private String login(String... params) throws ResponseException {
@@ -107,7 +107,7 @@ public class ChessClient implements GameHandler {
             state = States.LOGGED_IN;
             return String.format("Logged in as %s!", params[0]);
         }
-        throw new ResponseException(400, "Expected: <username> <password>");
+        throw new ResponseException(400, "Error, expected: <username> <password>");
     }
 
     private String logout() throws ResponseException {
@@ -121,7 +121,7 @@ public class ChessClient implements GameHandler {
             server.createGame(new CreateGameRequest(authToken, params[0]));
             return String.format("Created game %s!", params[0]);
         }
-        throw new ResponseException(400, "Expected: <game_name>");
+        throw new ResponseException(400, "Error, expected: <game_name>");
     }
 
     private String listGames() throws ResponseException {
@@ -148,12 +148,12 @@ public class ChessClient implements GameHandler {
             try {
                 gameNumber = Integer.parseInt(params[0]);
                 if (gameNumber <= 0) {
-                    throw new ResponseException(400, "Game id must be a valid integer!");
+                    throw new ResponseException(400, "Error: game id must be a valid integer!");
                 } else if (gameNumber > gameList.size()) {
-                    throw new ResponseException(400, "Game doesn't exist!");
+                    throw new ResponseException(400, "Error: game doesn't exist!");
                 }
             } catch (Exception e) {
-                throw new ResponseException(400, "Game id must be a valid integer!");
+                throw new ResponseException(400, "Error: game id must be a valid integer!");
             }
             server.joinGame(new JoinGameRequest(authToken, params[1].toUpperCase(), gameList.get(gameNumber - 1).gameID()));
             state = States.GAMEPLAY;
@@ -162,7 +162,7 @@ public class ChessClient implements GameHandler {
             ws.joinGame(authToken, gameList.get(gameNumber - 1).gameID(), currentColor);
             return String.format("Joined game %s as color %s!", gameList.get(gameNumber - 1).gameName(), params[1]);
         }
-        throw new ResponseException(400, "Expected: <game_id> <white/black>");
+        throw new ResponseException(400, "Error, expected: <game_id> <white/black>");
     }
 
     private void setCurrentColor(String color) {
@@ -179,18 +179,17 @@ public class ChessClient implements GameHandler {
             try {
                 gameNumber = Integer.parseInt(params[0]);
                 if (gameNumber <= 0) {
-                    throw new ResponseException(400, "Game id must be a valid integer!");
+                    throw new ResponseException(400, "Error: game id must be a valid integer!");
                 }
             } catch (Exception e) {
-                throw new ResponseException(400, "Game id must be a valid integer!");
+                throw new ResponseException(400, "Error: game id must be a valid integer!");
             }
-            state = States.GAMEPLAY;
             setCurrentColor("WHITE");
             currentGameID = gameList.get(gameNumber - 1).gameID();
             ws.observeGame(authToken, gameList.get(gameNumber - 1).gameID());
             return String.format("Observing game %s!", gameList.get(gameNumber - 1).gameName());
         }
-        throw new ResponseException(400, "Expected: <game_id>");
+        throw new ResponseException(400, "Error, expected: <game_id>");
     }
 
     private String leave() {
@@ -202,18 +201,21 @@ public class ChessClient implements GameHandler {
     // make sure to add promotion piece... eventually!
 
     private String makeMove(String... params) throws ResponseException {
-        if (params.length == 2) {
-            if (params[0].length() == 2 && params[1].length() == 2) {
-                ChessPosition startPos = getPosition(params[0]);
-                ChessPosition endPos = getPosition(params[1]);
-                ws.makeMove(authToken, currentGameID, new ChessMove(startPos, endPos, null));
-                return "";
+        if (state == States.GAMEPLAY) {
+            if (params.length == 2) {
+                if (params[0].length() == 2 && params[1].length() == 2) {
+                    ChessPosition startPos = getPosition(params[0]);
+                    ChessPosition endPos = getPosition(params[1]);
+                    ws.makeMove(authToken, currentGameID, new ChessMove(startPos, endPos, null));
+                    return "";
+                }
+                throw new ResponseException(400, "Error: please put valid starting and ending positions! Eg: a3 b4");
+            } else if (params.length == 3) {
+                return makePromotionMove(params);
             }
-            throw new ResponseException(400, "Please put valid starting and ending positions! Eg: a3 b4");
-        } else if (params.length == 3) {
-            return makePromotionMove(params);
+            throw new ResponseException(400, "Error, expected: <starting_position> <ending_position>");
         }
-        throw new ResponseException(400, "Expected: <starting_position> <ending_position>");
+        throw new ResponseException(400, "Error: you aren't in a game!");
     }
 
     private String highlightMoves(String... params) {
@@ -234,7 +236,7 @@ public class ChessClient implements GameHandler {
             ChessPosition endPos = getPosition(params[1]);
             ChessPiece.PieceType pPiece = getPromotionPiece(params[2]);
             if (pPiece == null) {
-                throw new ResponseException(400, "Please put a valid promotion piece: queen, rook, knight, or bishop.");
+                throw new ResponseException(400, "Error: please put a valid promotion piece: queen, rook, knight, or bishop.");
             }
             ws.makeMove(authToken, currentGameID, new ChessMove(startPos, endPos, pPiece));
         }
@@ -251,9 +253,12 @@ public class ChessClient implements GameHandler {
         };
     }
 
-    private String resign() {
-        ws.resign(authToken, currentGameID);
-        return "Resigned from game!";
+    private String resign() throws ResponseException {
+        if (state == States.GAMEPLAY) {
+            ws.resign(authToken, currentGameID);
+            return "Resigned from game!";
+        }
+        throw new ResponseException(400, "Error: you aren't in a game!");
     }
 
     private String redraw() {
