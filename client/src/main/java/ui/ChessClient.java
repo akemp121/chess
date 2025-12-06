@@ -2,6 +2,7 @@ package ui;
 
 import chess.ChessGame;
 import chess.ChessMove;
+import chess.ChessPiece;
 import chess.ChessPosition;
 import exception.ResponseException;
 import server.ServerFacade;
@@ -206,9 +207,11 @@ public class ChessClient implements GameHandler {
                 ChessPosition startPos = getPosition(params[0]);
                 ChessPosition endPos = getPosition(params[1]);
                 ws.makeMove(authToken, currentGameID, new ChessMove(startPos, endPos, null));
-                return "Move successful!";
+                return "";
             }
             throw new ResponseException(400, "Please put valid starting and ending positions! Eg: a3 b4");
+        } else if (params.length == 3) {
+            return makePromotionMove(params);
         }
         throw new ResponseException(400, "Expected: <starting_position> <ending_position>");
     }
@@ -223,6 +226,29 @@ public class ChessClient implements GameHandler {
         int colIndex = (col - 'a') + 1;
         int rowIndex = Integer.parseInt(pos.substring(1));
         return new ChessPosition(rowIndex, colIndex);
+    }
+
+    private String makePromotionMove(String... params) throws ResponseException {
+        if (params[0].length() == 2 && params[1].length() == 2) {
+            ChessPosition startPos = getPosition(params[0]);
+            ChessPosition endPos = getPosition(params[1]);
+            ChessPiece.PieceType pPiece = getPromotionPiece(params[2]);
+            if (pPiece == null) {
+                throw new ResponseException(400, "Please put a valid promotion piece: queen, rook, knight, or bishop.");
+            }
+            ws.makeMove(authToken, currentGameID, new ChessMove(startPos, endPos, pPiece));
+        }
+        return "";
+    }
+
+    private ChessPiece.PieceType getPromotionPiece(String piece) {
+        return switch (piece.toLowerCase()) {
+            case "queen" -> ChessPiece.PieceType.QUEEN;
+            case "rook" -> ChessPiece.PieceType.ROOK;
+            case "bishop" -> ChessPiece.PieceType.BISHOP;
+            case "knight" -> ChessPiece.PieceType.KNIGHT;
+            default -> null;
+        };
     }
 
     private String resign() {
