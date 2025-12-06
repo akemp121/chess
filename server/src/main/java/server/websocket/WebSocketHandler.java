@@ -91,13 +91,11 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             var message = "";
             if (command.getConnectionType() == UserConnectCommand.ConnectionType.PLAYER) {
                 message = String.format("%s has joined the game as %s!", ad.username(), command.getTeamColor().toString());
+
             } else {
                 message = String.format("%s is now observing the game!", ad.username());
             }
             broadcastNoti(command.getGameID(), session, message);
-
-            // send the board to the user
-
             updateBoard(command, session);
         } else {
             var invalidMsg = "Error: Invalid authToken!";
@@ -204,6 +202,14 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 
         if (gd != null && ad != null) {
 
+            // get team color of the caller:
+            ChessGame.TeamColor callerColor;
+            if (ad.username().equals(gd.whiteUsername())) {
+                callerColor = ChessGame.TeamColor.WHITE;
+            } else {
+                callerColor = ChessGame.TeamColor.BLACK;
+            }
+
             if (gd.game().getState() != ChessGame.GameState.ACTIVE) {
 
                 sendError(getContextMessage(gd.game()), session);
@@ -212,31 +218,42 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 
                 ChessMove proposedMove = command.getMove();
 
-                // see if the move is valid
+                // make sure the caller is moving the right team's piece:
 
-                try {
+                if (gd.game().getBoard().getPiece(proposedMove.getStartPosition()).getTeamColor() == callerColor) {
 
-                    // if it is, make the move and send the new board to everyone
+                    // see if the move is valid
 
-                    gd.game().makeMove(proposedMove);
-                    gameDAO.updateGame(new GameData(gd.gameID(), gd.whiteUsername(), gd.blackUsername(), gd.gameName(), gd.game()));
-                    var newBoard = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, gd.game());
-                    broadcast(command.getGameID(), null, newBoard);
+                    try {
 
-                    // ALSO BROADCAST WHAT MOVE WAS MADE TO USERS:
+                        // if it is, make the move and send the new board to everyone
 
-                    var moveMade = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, moveToString(proposedMove, ad.username()));
-                    broadcast(command.getGameID(), session, moveMade);
+                        gd.game().makeMove(proposedMove);
+                        gameDAO.updateGame(new GameData(gd.gameID(), gd.whiteUsername(), gd.blackUsername(), gd.gameName(), gd.game()));
+                        var newBoard = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, gd.game());
+                        broadcast(command.getGameID(), null, newBoard);
 
-                    // ALSO CHECK IF ANYONE IS IN CHECK, CHECKMATE, OR STALEMATE (perhaps in another method?)
+                        // ALSO BROADCAST WHAT MOVE WAS MADE TO USERS:
 
-                    gameCheck(gd.game(), command.getGameID());
+                        var moveMade = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, moveToString(proposedMove, ad.username()));
+                        broadcast(command.getGameID(), session, moveMade);
 
-                } catch (InvalidMoveException e) {
+                        // ALSO CHECK IF ANYONE IS IN CHECK, CHECKMATE, OR STALEMATE (perhaps in another method?)
 
-                    // if not, tell only the user that made the move that it was wrong
+                        gameCheck(gd.game(), command.getGameID());
 
-                    var invalidMsg = "Error: Invalid move!";
+                    } catch (InvalidMoveException e) {
+
+                        // if not, tell only the user that made the move that it was wrong
+
+                        var invalidMsg = "Error: Invalid move!";
+                        sendError(invalidMsg, session);
+
+                    }
+
+                } else {
+
+                    var invalidMsg = "Error: Can't move opponent's pieces!";
                     sendError(invalidMsg, session);
 
                 }
