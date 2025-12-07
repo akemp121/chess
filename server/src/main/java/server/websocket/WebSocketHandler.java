@@ -294,10 +294,20 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         AuthData ad = authDAO.getAuth(command.getAuthToken());
         GameData gd = gameDAO.getGame(command.getGameID());
         if (gd != null && ad != null) {
-            gd.game().setState(ChessGame.GameState.RESIGNED);
-            gameDAO.updateGame(new GameData(gd.gameID(), gd.whiteUsername(), gd.blackUsername(), gd.gameName(), gd.game()));
-            var message = String.format("%s has resigned from the game!", ad.username());
-            broadcastNoti(command.getGameID(), null, message);
+            if (gd.whiteUsername().equals(ad.username()) || gd.blackUsername().equals(ad.username())) {
+                if (gd.game().getState() != ChessGame.GameState.RESIGNED) {
+                    gd.game().setState(ChessGame.GameState.RESIGNED);
+                    gameDAO.updateGame(new GameData(gd.gameID(), gd.whiteUsername(), gd.blackUsername(), gd.gameName(), gd.game()));
+                    var message = String.format("%s has resigned from the game!", ad.username());
+                    broadcastNoti(command.getGameID(), null, message);
+                } else {
+                    var invalidMsg = "Error: Game is already resigned!";
+                    sendError(invalidMsg, session);
+                }
+            } else {
+                var invalidMsg = "Error: Only players can resign!";
+                sendError(invalidMsg, session);
+            }
         } else {
             var invalidMsg = "Error: Game or users not found!";
             sendError(invalidMsg, session);
