@@ -159,7 +159,7 @@ public class ChessClient implements GameHandler {
             state = States.GAMEPLAY;
             setCurrentColor(params[1]);
             currentGameID = gameList.get(gameNumber - 1).gameID();
-            ws.joinGame(authToken, gameList.get(gameNumber - 1).gameID(), currentColor);
+            ws.joinGame(authToken, gameList.get(gameNumber - 1).gameID());
             return String.format("Joined game %s as color %s!", gameList.get(gameNumber - 1).gameName(), params[1]);
         }
         throw new ResponseException(400, "Error, expected: <game_id> <white/black>");
@@ -186,7 +186,7 @@ public class ChessClient implements GameHandler {
             }
             setCurrentColor("WHITE");
             currentGameID = gameList.get(gameNumber - 1).gameID();
-            ws.observeGame(authToken, gameList.get(gameNumber - 1).gameID());
+            ws.joinGame(authToken, gameList.get(gameNumber - 1).gameID());
             return String.format("Observing game %s!", gameList.get(gameNumber - 1).gameName());
         }
         throw new ResponseException(400, "Error, expected: <game_id>");

@@ -238,7 +238,8 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 
                         // ALSO BROADCAST WHAT MOVE WAS MADE TO USERS:
 
-                        var moveMade = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, moveToString(proposedMove, ad.username()));
+                        var moveMade = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION,
+                                moveToString(proposedMove, ad.username()));
                         broadcast(command.getGameID(), session, moveMade);
 
                         // ALSO CHECK IF ANYONE IS IN CHECK, CHECKMATE, OR STALEMATE (perhaps in another method?)
