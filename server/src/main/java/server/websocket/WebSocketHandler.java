@@ -57,8 +57,8 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             switch (command.getCommandType()) {
 
                 case CONNECT:
-                    UserConnectCommand userConnectCommand = new Gson().fromJson(wsMessageContext.message(), UserConnectCommand.class);
-                    connect(userConnectCommand, wsMessageContext.session);
+                    UserGameCommand userGameCommand = new Gson().fromJson(wsMessageContext.message(), UserGameCommand.class);
+                    connect(userGameCommand, wsMessageContext.session);
                     break;
                 case LEAVE:
                     leave(command, wsMessageContext.session);
@@ -81,19 +81,22 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 
     }
 
-    private void connect(UserConnectCommand command, Session session) throws IOException, DataAccessException {
+    private void connect(UserGameCommand command, Session session) throws IOException, DataAccessException {
 
         // add user to session and tell everyone
+        // check the database for the user, that will tell us if they're a player
 
         sessions.addSessionToGame(command.getGameID(), session);
         AuthData ad = authDAO.getAuth(command.getAuthToken());
-        if (ad != null) {
-            var message = "";
-            if (command.getConnectionType() == UserConnectCommand.ConnectionType.PLAYER) {
-                message = String.format("%s has joined the game as %s!", ad.username(), command.getTeamColor().toString());
-
+        GameData gd = gameDAO.getGame(command.getGameID());
+        if (ad != null && gd != null) {
+            String message;
+            if (gd.whiteUsername().equals(ad.username())) {
+                message = String.format("%s has joined the game as white!", ad.username());
+            } else if (gd.blackUsername().equals(ad.username())) {
+                message = String.format("%s has joined the game as black!", ad.username());
             } else {
-                message = String.format("%s is now observing the game!", ad.username());
+                message = String.format("%s is observing the game!", ad.username());
             }
             broadcastNoti(command.getGameID(), session, message);
             updateBoard(command, session);
@@ -285,14 +288,20 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
     private void resign(UserGameCommand command, Session session) throws IOException, DataAccessException {
 
         // get the game, set its status to RESIGNED, then send a message to everyone
+        // make sure that only PLAYERS can resign.
+        // don't allow multiple resigns.
 
         AuthData ad = authDAO.getAuth(command.getAuthToken());
         GameData gd = gameDAO.getGame(command.getGameID());
-        gd.game().setState(ChessGame.GameState.RESIGNED);
-        gameDAO.updateGame(new GameData(gd.gameID(), gd.whiteUsername(), gd.blackUsername(), gd.gameName(), gd.game()));
-        var message = String.format("%s has resigned from the game!", ad.username());
-        broadcastNoti(command.getGameID(), session, message);
-
+        if (gd != null && ad != null) {
+            gd.game().setState(ChessGame.GameState.RESIGNED);
+            gameDAO.updateGame(new GameData(gd.gameID(), gd.whiteUsername(), gd.blackUsername(), gd.gameName(), gd.game()));
+            var message = String.format("%s has resigned from the game!", ad.username());
+            broadcastNoti(command.getGameID(), null, message);
+        } else {
+            var invalidMsg = "Error: Game or users not found!";
+            sendError(invalidMsg, session);
+        }
     }
 
     private void broadcast(Integer gameID, Session excludeSession, ServerMessage message) throws IOException {

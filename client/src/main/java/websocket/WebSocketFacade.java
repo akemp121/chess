@@ -66,8 +66,8 @@ public class WebSocketFacade extends Endpoint implements MessageHandler {
 
     public void joinGame(String authToken, Integer gameID, ChessGame.TeamColor color) {
         try {
-            UserConnectCommand command = new UserConnectCommand(UserGameCommand.CommandType.CONNECT,
-                    authToken, gameID, UserConnectCommand.ConnectionType.PLAYER, color);
+            UserGameCommand command = new UserGameCommand(UserGameCommand.CommandType.CONNECT,
+                    authToken, gameID);
             this.session.getBasicRemote().sendText(new Gson().toJson(command));
         } catch (IOException ex) {
             throw new RuntimeException(ex.getMessage());
@@ -76,8 +76,8 @@ public class WebSocketFacade extends Endpoint implements MessageHandler {
 
     public void observeGame(String authToken, Integer gameID) {
         try {
-            UserConnectCommand command = new UserConnectCommand(UserGameCommand.CommandType.CONNECT,
-                    authToken, gameID, UserConnectCommand.ConnectionType.OBSERVER, null);
+            UserGameCommand command = new UserGameCommand(UserGameCommand.CommandType.CONNECT,
+                    authToken, gameID);
             this.session.getBasicRemote().sendText(new Gson().toJson(command));
         } catch (IOException ex) {
             throw new RuntimeException(ex.getMessage());
