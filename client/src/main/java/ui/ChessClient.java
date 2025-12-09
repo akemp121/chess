@@ -215,9 +215,14 @@ public class ChessClient implements GameHandler {
         throw new ResponseException(400, "Error: you aren't in a game!");
     }
 
-    private String highlightMoves(String... params) {
-        BoardIllustrator.higlightMoves(currentGame.getBoard(), currentColor, getPosition(params[0]));
-        return "";
+    private String highlightMoves(String... params) throws ResponseException {
+        if (currentGame.getBoard().getPiece(getPosition(params[0])) != null) {
+            BoardIllustrator.highlightMoves(currentGame.getBoard(), currentColor, getPosition(params[0]), currentGame);
+            return "";
+        } else {
+            throw new ResponseException(400, "Error: No piece at the selected position!");
+        }
+
     }
 
     private ChessPosition getPosition(String pos) {

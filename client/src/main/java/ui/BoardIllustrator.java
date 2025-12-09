@@ -44,11 +44,11 @@ public class BoardIllustrator {
         out.print("\n");
     }
 
-    public static void higlightMoves(ChessBoard board, ChessGame.TeamColor teamColor, ChessPosition position) {
+    public static void highlightMoves(ChessBoard board, ChessGame.TeamColor teamColor, ChessPosition position, ChessGame game) {
         var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
         ChessPiece[][] squares = board.getSquares();
 
-        Collection<ChessMove> moves = board.getPiece(position).pieceMoves(board, position);
+        Collection<ChessMove> moves = game.validMoves(position);
 
         out.print(ERASE_SCREEN);
 
