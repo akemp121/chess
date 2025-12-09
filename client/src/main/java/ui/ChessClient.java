@@ -204,10 +204,7 @@ public class ChessClient implements GameHandler {
         if (state == States.GAMEPLAY) {
             if (params.length == 2) {
                 if (params[0].length() == 2 && params[1].length() == 2) {
-                    ChessPosition startPos = getPosition(params[0]);
-                    ChessPosition endPos = getPosition(params[1]);
-                    ws.makeMove(authToken, currentGameID, new ChessMove(startPos, endPos, null));
-                    return "";
+                    return makeRegularMove(params);
                 }
                 throw new ResponseException(400, "Error: please put valid starting and ending positions! Eg: a3 b4");
             } else if (params.length == 3) {
@@ -228,6 +225,17 @@ public class ChessClient implements GameHandler {
         int colIndex = (col - 'a') + 1;
         int rowIndex = Integer.parseInt(pos.substring(1));
         return new ChessPosition(rowIndex, colIndex);
+    }
+
+    private String makeRegularMove(String... params) throws ResponseException {
+        if (params[0].matches("[a-h][1-8]") && params[1].matches("[a-h][1-8]")) {
+            ChessPosition startPos = getPosition(params[0]);
+            ChessPosition endPos = getPosition(params[1]);
+            ws.makeMove(authToken, currentGameID, new ChessMove(startPos, endPos, null));
+            return "";
+        } else {
+            throw new ResponseException(400, "Error: invalid positions! Please put something like: Eg: a3 b4");
+        }
     }
 
     private String makePromotionMove(String... params) throws ResponseException {

@@ -15,6 +15,7 @@ import dataaccess.*;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.Objects;
 
 public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsCloseHandler {
 
@@ -91,9 +92,9 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         GameData gd = gameDAO.getGame(command.getGameID());
         if (ad != null && gd != null) {
             String message;
-            if (gd.whiteUsername().equals(ad.username())) {
+            if (Objects.equals(gd.whiteUsername(), ad.username())) {
                 message = String.format("%s has joined the game as white!", ad.username());
-            } else if (gd.blackUsername().equals(ad.username())) {
+            } else if (Objects.equals(gd.blackUsername(), ad.username())) {
                 message = String.format("%s has joined the game as black!", ad.username());
             } else {
                 message = String.format("%s is observing the game!", ad.username());
@@ -152,8 +153,8 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         String[] letters = {"a", "b", "c", "d", "e", "f", "g", "h"};
         String sCol = letters[move.getStartPosition().getColumn() - 1];
         String eCol = letters[move.getEndPosition().getColumn() - 1];
-        Integer sRow = move.getStartPosition().getRow() - 1;
-        Integer eRow = move.getEndPosition().getRow() - 1;
+        Integer sRow = move.getStartPosition().getRow();
+        Integer eRow = move.getEndPosition().getRow();
         return String.format("Player %s moved from %s%d to %s%d", userName, sCol, sRow, eCol, eRow);
 
     }
