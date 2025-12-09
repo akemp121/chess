@@ -159,35 +159,39 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 
     }
 
-    private void gameCheck(ChessGame game, Integer gameID) throws IOException {
+    private void gameCheck(ChessGame game, Integer gameID, Session session) throws IOException, DataAccessException {
 
         // Check if the state of the game has changed
         // If it has, then we need to update the state and notify EVERYONE
-
-        if (game.isInCheckmate(ChessGame.TeamColor.WHITE)) {
-            var context = "White is in checkmate!";
-            broadcastNoti(gameID, null, context);
-            game.setState(ChessGame.GameState.CHECKMATE);
-        } else if (game.isInCheckmate(ChessGame.TeamColor.BLACK)) {
-            var context = "Black is in checkmate!";
-            broadcastNoti(gameID, null, context);
-            game.setState(ChessGame.GameState.CHECKMATE);
-        } else if (game.isInStalemate(ChessGame.TeamColor.WHITE)) {
-            var context = "White is in stalemate!";
-            broadcastNoti(gameID, null, context);
-            game.setState(ChessGame.GameState.STALEMATE);
-        } else if (game.isInStalemate(ChessGame.TeamColor.BLACK)) {
-            var context = "Black is in stalemate!";
-            broadcastNoti(gameID, null, context);
-            game.setState(ChessGame.GameState.STALEMATE);
-        } else if (game.isInCheck(ChessGame.TeamColor.WHITE)) {
-            var context = "White is in check!";
-            broadcastNoti(gameID, null, context);
-        } else if (game.isInCheck(ChessGame.TeamColor.BLACK)) {
-            var context = "Black is in check!";
-            broadcastNoti(gameID, null, context);
+        GameData gd = gameDAO.getGame(gameID);
+        if (gd != null) {
+            if (game.isInCheckmate(ChessGame.TeamColor.WHITE)) {
+                var context = String.format("%s is in checkmate!", gd.whiteUsername());
+                broadcastNoti(gameID, null, context);
+                game.setState(ChessGame.GameState.CHECKMATE);
+            } else if (game.isInCheckmate(ChessGame.TeamColor.BLACK)) {
+                var context = String.format("%s is in checkmate!", gd.blackUsername());
+                broadcastNoti(gameID, null, context);
+                game.setState(ChessGame.GameState.CHECKMATE);
+            } else if (game.isInStalemate(ChessGame.TeamColor.WHITE)) {
+                var context = String.format("%s is in stalemate!", gd.whiteUsername());
+                broadcastNoti(gameID, null, context);
+                game.setState(ChessGame.GameState.STALEMATE);
+            } else if (game.isInStalemate(ChessGame.TeamColor.BLACK)) {
+                var context = String.format("%s is in stalemate!", gd.blackUsername());
+                broadcastNoti(gameID, null, context);
+                game.setState(ChessGame.GameState.STALEMATE);
+            } else if (game.isInCheck(ChessGame.TeamColor.WHITE)) {
+                var context = String.format("%s is in check!", gd.whiteUsername());
+                broadcastNoti(gameID, null, context);
+            } else if (game.isInCheck(ChessGame.TeamColor.BLACK)) {
+                var context = String.format("%s is in check!", gd.blackUsername());
+                broadcastNoti(gameID, null, context);
+            }
+        } else {
+            var invalidMsg = "Error: Game not found!";
+            sendError(invalidMsg, session);
         }
-
     }
 
     private void broadcastNoti(Integer gameID, Session excludeSession, String message) throws IOException {
@@ -245,7 +249,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 
                         // ALSO CHECK IF ANYONE IS IN CHECK, CHECKMATE, OR STALEMATE (perhaps in another method?)
 
-                        gameCheck(gd.game(), command.getGameID());
+                        gameCheck(gd.game(), command.getGameID(), session);
 
                     } catch (InvalidMoveException e) {
 
