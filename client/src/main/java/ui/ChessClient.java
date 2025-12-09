@@ -15,6 +15,7 @@ import model.*;
 import websocket.GameHandler;
 import websocket.WebSocketFacade;
 
+import java.util.Objects;
 import java.util.Scanner;
 
 import static ui.EscapeSequences.*;
@@ -267,9 +268,19 @@ public class ChessClient implements GameHandler {
     }
 
     private String resign() throws ResponseException {
-        if (state == States.GAMEPLAY) {
-            ws.resign(authToken, currentGameID);
-            return "Resigned from game!";
+        var result = "";
+        Scanner scanner = new Scanner(System.in);
+        while (!result.equals("y") && !result.equals("n")) {
+            System.out.print("\n" + SET_TEXT_COLOR_GREEN + "Are you sure you want to resign? (y/n): ");
+            result = scanner.nextLine();
+        }
+        if (Objects.equals(result, "y")) {
+            if (state == States.GAMEPLAY) {
+                ws.resign(authToken, currentGameID);
+                return "Resigned from game!";
+            }
+        } else {
+            return "";
         }
         throw new ResponseException(400, "Error: you aren't in a game!");
     }
